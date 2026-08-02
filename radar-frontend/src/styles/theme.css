@@ -1,0 +1,33 @@
+:root {
+  color-scheme: dark;
+
+  /* 与 Figma Make src/theme.ts 对齐的暗色鎏金设计令牌。 */
+  --color-bg: #0b0907;
+  --color-bg-panel: #100d09;
+  --color-card: #13100a;
+  --color-card-hover: #1a1610;
+  --color-gold: #d4b87a;
+  --color-gold-bright: #f0d488;
+  --color-gold-dim: #a88448;
+  --color-gold-faint: rgba(200, 169, 110, 0.12);
+  --color-gold-border: rgba(200, 169, 110, 0.35);
+  --color-gold-border-hover: rgba(200, 169, 110, 0.65);
+  --color-ivory: #f0e4cc;
+  --color-ivory-dim: #c8b48a;
+  --color-ivory-faint: #907860;
+  --color-live: #50e896;
+  --color-live-dim: rgba(80, 232, 150, 0.12);
+  --color-live-border: rgba(80, 232, 150, 0.38);
+  --color-error: #c87858;
+  --color-error-dim: rgba(200, 120, 88, 0.12);
+  --color-error-border: rgba(200, 120, 88, 0.3);
+  --color-offline: #3a2e1e;
+
+  --font-display: 'Cinzel Decorative', 'Times New Roman', serif;
+  --font-utility: 'Cinzel', 'Times New Roman', serif;
+  --font-reading: 'EB Garamond', 'Times New Roman', serif;
+  --font-body: 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
+
+  --page-gutter: clamp(1rem, 5vw, 4rem);
+  --page-width: 75rem;
+}
