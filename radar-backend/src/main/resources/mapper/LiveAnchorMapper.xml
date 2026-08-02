@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hotchpotch.radarbackend.domain.mapper.LiveAnchorMapper">
+
+    <resultMap id="BaseResultMap" type="com.hotchpotch.radarbackend.domain.entity.LiveAnchor">
+        <id column="id" property="id"/>
+        <result column="platform" property="platform"/>
+        <result column="room_id" property="roomId"/>
+        <result column="platform_uid" property="platformUid"/>
+        <result column="room_url" property="roomUrl"/>
+        <result column="anchor_name" property="anchorName"/>
+        <result column="avatar_url" property="avatarUrl"/>
+        <result column="cover_url" property="coverUrl"/>
+        <result column="live_title" property="liveTitle"/>
+        <result column="online_count" property="onlineCount"/>
+        <result column="live_status" property="liveStatus"/>
+        <result column="failure_count" property="failureCount"/>
+        <result column="error_message" property="errorMessage"/>
+        <result column="last_check_time" property="lastCheckTime"/>
+        <result column="last_success_time" property="lastSuccessTime"/>
+        <result column="status_change_time" property="statusChangeTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="BaseColumns">
+        id,
+        platform,
+        room_id,
+        platform_uid,
+        room_url,
+        anchor_name,
+        avatar_url,
+        cover_url,
+        live_title,
+        online_count,
+        live_status,
+        failure_count,
+        error_message,
+        last_check_time,
+        last_success_time,
+        status_change_time,
+        create_time,
+        update_time
+    </sql>
+
+    <select id="selectByPlatformAndRoomId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="BaseColumns"/>
+        FROM live_anchor
+        WHERE platform = #{platform}
+          AND room_id = #{roomId}
+        LIMIT 1
+    </select>
+
+</mapper>

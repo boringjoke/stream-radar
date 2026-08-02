@@ -1,0 +1,13 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+  web:
+    error:
+      include-message: "${SERVER_ERROR_INCLUDE_MESSAGE:always}"
+      include-binding-errors: "${SERVER_ERROR_INCLUDE_BINDING_ERRORS:always}"
+
+logging:
+  level:
+    root: "${LOG_LEVEL_ROOT:INFO}"
+    com.hotchpotch.radarbackend: "${LOG_LEVEL_APP:DEBUG}"

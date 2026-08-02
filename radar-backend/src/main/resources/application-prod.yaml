@@ -1,0 +1,20 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+  web:
+    error:
+      include-message: "${SERVER_ERROR_INCLUDE_MESSAGE:never}"
+      include-binding-errors: "${SERVER_ERROR_INCLUDE_BINDING_ERRORS:never}"
+
+logging:
+  level:
+    root: "${LOG_LEVEL_ROOT:INFO}"
+    com.hotchpotch.radarbackend: "${LOG_LEVEL_APP:INFO}"
+
+server:
+  forward-headers-strategy: "${SERVER_FORWARD_HEADERS_STRATEGY:framework}"
+  servlet:
+    session:
+      cookie:
+        secure: "${SESSION_COOKIE_SECURE:true}"
