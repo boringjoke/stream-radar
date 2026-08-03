@@ -2,10 +2,54 @@ spring:
   config:
     activate:
       on-profile: dev
+  datasource:
+    url: "${DB_URL:jdbc:mysql://127.0.0.1:3306/stream_radar?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai}"
+    username: "${DB_USERNAME:radar}"
+    password: "${DB_PASSWORD:radar1991.}"
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: "${DB_CONNECTION_TIMEOUT_MS:30000}"
+      maximum-pool-size: "${DB_MAX_POOL_SIZE:10}"
+      minimum-idle: "${DB_MIN_IDLE:2}"
+  data:
+    redis:
+      host: "${REDIS_HOST:127.0.0.1}"
+      port: "${REDIS_PORT:6379}"
+      username: "${REDIS_USERNAME:}"
+      password: "${REDIS_PASSWORD:}"
+      database: "${REDIS_DATABASE:2}"
+      connect-timeout: "${REDIS_CONNECT_TIMEOUT:5s}"
+      timeout: "${REDIS_COMMAND_TIMEOUT:2s}"
+  flyway:
+    enabled: "${FLYWAY_ENABLED:true}"
+    locations: "${FLYWAY_LOCATIONS:classpath:db/migration}"
+    validate-on-migrate: "${FLYWAY_VALIDATE_ON_MIGRATE:true}"
+  session:
+    store-type: redis
+    timeout: "${SESSION_TIMEOUT:30m}"
+    redis:
+      namespace: "${SESSION_REDIS_NAMESPACE:stream-radar:dev:session}"
+      flush-mode: "${SESSION_REDIS_FLUSH_MODE:on_save}"
+      save-mode: "${SESSION_REDIS_SAVE_MODE:on_set_attribute}"
   web:
     error:
       include-message: "${SERVER_ERROR_INCLUDE_MESSAGE:always}"
       include-binding-errors: "${SERVER_ERROR_INCLUDE_BINDING_ERRORS:always}"
+
+server:
+  servlet:
+    session:
+      cookie:
+        name: "${SESSION_COOKIE_NAME:STREAMRADAR_DEV_SESSION}"
+        http-only: "${SESSION_COOKIE_HTTP_ONLY:true}"
+        same-site: "${SESSION_COOKIE_SAME_SITE:lax}"
+        secure: "${SESSION_COOKIE_SECURE:false}"
+
+radar:
+  security:
+    csrf:
+      cookie-same-site: "${CSRF_COOKIE_SAME_SITE:lax}"
+      cookie-secure: "${CSRF_COOKIE_SECURE:false}"
 
 logging:
   level:
