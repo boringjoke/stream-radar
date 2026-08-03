@@ -12,11 +12,15 @@ export class ApiRequestError extends Error {
   /** 后端业务响应码。 */
   readonly code: number | undefined
 
-  constructor(message: string, status: number, code?: number) {
+  /** 后端返回的业务错误详情。 */
+  readonly details: unknown
+
+  constructor(message: string, status: number, code?: number, details?: unknown) {
     super(message)
     this.name = 'ApiRequestError'
     this.status = status
     this.code = code
+    this.details = details
   }
 }
 
@@ -64,11 +68,17 @@ export async function request<T>(path: string, options: JsonRequestOptions = {})
       payload?.message || `请求失败（${response.status}）`,
       response.status,
       payload?.code,
+      payload?.data,
     )
   }
 
   if (payload && payload.code !== 0) {
-    throw new ApiRequestError(payload.message || '请求处理失败', response.status, payload.code)
+    throw new ApiRequestError(
+      payload.message || '请求处理失败',
+      response.status,
+      payload.code,
+      payload.data,
+    )
   }
 
   return payload?.data as T

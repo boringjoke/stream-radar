@@ -1,8 +1,15 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
+
 import GoldDivider from '@/components/GoldDivider.vue'
 import SectionHeader from '@/components/SectionHeader.vue'
 import StreamerCard, { type StreamerCardData } from '@/components/StreamerCard.vue'
+import UserHomePage from '@/views/pages/UserHomePage.vue'
+import { useSessionStore } from '@/stores/session'
 import { platformCatalog } from '@/types/platform'
+
+const sessionStore = useSessionStore()
+const { isAuthenticated } = storeToRefs(sessionStore)
 
 /**
  * Figma Make 的游客首页展示数据。
@@ -50,7 +57,9 @@ const demoStreamers: StreamerCardData[] = [
 </script>
 
 <template>
-  <main class="guest-home">
+  <UserHomePage v-if="isAuthenticated" />
+
+  <main v-else class="guest-home">
     <section class="guest-hero" aria-labelledby="guest-home-title">
       <div class="guest-hero__inner animate-fade-in-up">
         <div class="guest-hero__ornament">
