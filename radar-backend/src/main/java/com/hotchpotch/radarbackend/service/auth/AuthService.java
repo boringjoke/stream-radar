@@ -6,6 +6,7 @@ import java.util.Locale;
 import com.hotchpotch.radarbackend.common.exception.BusinessException;
 import com.hotchpotch.radarbackend.common.exception.ErrorCode;
 import com.hotchpotch.radarbackend.domain.entity.SysUser;
+import com.hotchpotch.radarbackend.domain.enums.UserRole;
 import com.hotchpotch.radarbackend.domain.repository.SysUserRepository;
 import com.hotchpotch.radarbackend.request.auth.LoginRequest;
 import com.hotchpotch.radarbackend.request.auth.RegisterRequest;
@@ -121,6 +122,7 @@ public class AuthService {
         user.setEmail(email);
         user.setNickname(username);
         user.setStatus(1);
+        user.setRole(UserRole.USER.getCode());
 
         try {
             userRepository.insert(user);
@@ -259,6 +261,7 @@ public class AuthService {
                 user.getId(),
                 user.getUsername(),
                 user.getNickname(),
-                user.getAvatarPath()));
+                user.getAvatarPath(),
+                user.getRole()));
     }
 }

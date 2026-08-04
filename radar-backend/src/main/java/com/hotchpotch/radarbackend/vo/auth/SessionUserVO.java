@@ -25,11 +25,31 @@ public class SessionUserVO {
      */
     private final String avatarPath;
 
-    public SessionUserVO(Long id, String username, String nickname, String avatarPath) {
+    /**
+     * 账号角色：USER 普通用户，ADMIN 管理员。
+     */
+    private final String role;
+
+    /**
+     * 创建当前登录用户会话摘要。
+     *
+     * @param id 用户主键
+     * @param username 用户名
+     * @param nickname 用户昵称
+     * @param avatarPath 项目内头像静态资源路径
+     * @param role 账号角色
+     */
+    public SessionUserVO(
+            Long id,
+            String username,
+            String nickname,
+            String avatarPath,
+            String role) {
         this.id = id;
         this.username = username;
         this.nickname = nickname;
         this.avatarPath = avatarPath;
+        this.role = role;
     }
 
     public Long getId() {
@@ -46,5 +66,14 @@ public class SessionUserVO {
 
     public String getAvatarPath() {
         return avatarPath;
+    }
+
+    /**
+     * 获取账号角色。
+     *
+     * @return 账号角色
+     */
+    public String getRole() {
+        return role;
     }
 }

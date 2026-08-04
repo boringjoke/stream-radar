@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hotchpotch.radarbackend.domain.entity.SysUser;
+import com.hotchpotch.radarbackend.domain.enums.UserRole;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,6 +32,11 @@ public final class RadarUserPrincipal implements UserDetails, Serializable {
     private final String username;
 
     /**
+     * 账号角色。
+     */
+    private final String role;
+
+    /**
      * 密码摘要，仅用于当前认证过程，不写入 Session。
      */
     private final transient String passwordHash;
@@ -40,9 +46,15 @@ public final class RadarUserPrincipal implements UserDetails, Serializable {
      */
     private final boolean enabled;
 
-    private RadarUserPrincipal(Long userId, String username, String passwordHash, boolean enabled) {
+    private RadarUserPrincipal(
+            Long userId,
+            String username,
+            String role,
+            String passwordHash,
+            boolean enabled) {
         this.userId = userId;
         this.username = username;
+        this.role = role;
         this.passwordHash = passwordHash;
         this.enabled = enabled;
     }
@@ -57,6 +69,7 @@ public final class RadarUserPrincipal implements UserDetails, Serializable {
         return new RadarUserPrincipal(
                 user.getId(),
                 user.getUsername(),
+                user.getRole(),
                 user.getPasswordHash(),
                 Integer.valueOf(1).equals(user.getStatus()));
     }
@@ -68,6 +81,15 @@ public final class RadarUserPrincipal implements UserDetails, Serializable {
      */
     public Long getUserId() {
         return userId;
+    }
+
+    /**
+     * 获取账号角色。
+     *
+     * @return 账号角色
+     */
+    public String getRole() {
+        return role;
     }
 
     @Override
@@ -83,7 +105,10 @@ public final class RadarUserPrincipal implements UserDetails, Serializable {
 
     @Override
     public List<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        String authority = UserRole.ADMIN.getCode().equals(role)
+                ? "ROLE_ADMIN"
+                : "ROLE_USER";
+        return List.of(new SimpleGrantedAuthority(authority));
     }
 
     @Override

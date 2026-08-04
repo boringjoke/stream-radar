@@ -58,6 +58,12 @@ public class SysUser {
     private Integer status;
 
     /**
+     * 账号角色：USER 普通用户，ADMIN 管理员。
+     */
+    @TableField("role")
+    private String role;
+
+    /**
      * 最后登录时间。
      */
     @TableField("last_login_time")

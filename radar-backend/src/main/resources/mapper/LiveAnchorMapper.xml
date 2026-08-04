@@ -55,4 +55,63 @@
         LIMIT 1
     </select>
 
+    <resultMap id="AdminLiveAnchorResultMap" type="com.hotchpotch.radarbackend.vo.admin.AdminLiveAnchorVO">
+        <id column="anchor_id" property="anchorId"/>
+        <result column="platform" property="platform"/>
+        <result column="room_id" property="roomId"/>
+        <result column="platform_uid" property="platformUid"/>
+        <result column="room_url" property="roomUrl"/>
+        <result column="anchor_name" property="anchorName"/>
+        <result column="avatar_url" property="avatarUrl"/>
+        <result column="cover_url" property="coverUrl"/>
+        <result column="live_title" property="liveTitle"/>
+        <result column="online_count" property="onlineCount"/>
+        <result column="live_status" property="liveStatus"/>
+        <result column="last_check_time" property="lastCheckTime"/>
+        <result column="follower_count" property="followerCount"/>
+    </resultMap>
+
+    <select id="selectMonitoredLiveAnchorPage" resultMap="AdminLiveAnchorResultMap">
+        SELECT
+            la.id AS anchor_id,
+            la.platform,
+            la.room_id,
+            la.platform_uid,
+            la.room_url,
+            la.anchor_name,
+            la.avatar_url,
+            la.cover_url,
+            la.live_title,
+            la.online_count,
+            la.live_status,
+            la.last_check_time,
+            COUNT(DISTINCT ufa.user_id) AS follower_count
+        FROM live_anchor la
+        INNER JOIN user_follow_anchor ufa ON ufa.anchor_id = la.id
+        INNER JOIN sys_user su ON su.id = ufa.user_id AND su.status = 1
+        GROUP BY
+            la.id,
+            la.platform,
+            la.room_id,
+            la.platform_uid,
+            la.room_url,
+            la.anchor_name,
+            la.avatar_url,
+            la.cover_url,
+            la.live_title,
+            la.online_count,
+            la.live_status,
+            la.last_check_time,
+            la.update_time
+        ORDER BY la.update_time DESC, la.id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="countMonitoredLiveAnchors" resultType="long">
+        SELECT COUNT(DISTINCT ufa.anchor_id)
+        FROM user_follow_anchor ufa
+        INNER JOIN live_anchor la ON la.id = ufa.anchor_id
+        INNER JOIN sys_user su ON su.id = ufa.user_id AND su.status = 1
+    </select>
+
 </mapper>

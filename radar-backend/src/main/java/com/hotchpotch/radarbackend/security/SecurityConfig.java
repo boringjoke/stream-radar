@@ -153,6 +153,8 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/user/avatarOptions")
                         .permitAll()
+                        .requestMatchers("/api/admin/**")
+                        .hasRole("ADMIN")
                         .requestMatchers("/api/user/**")
                         .authenticated()
                         .anyRequest()

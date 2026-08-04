@@ -12,6 +12,7 @@
         <result column="nickname" property="nickname"/>
         <result column="avatar_path" property="avatarPath"/>
         <result column="status" property="status"/>
+        <result column="role" property="role"/>
         <result column="last_login_time" property="lastLoginTime"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
@@ -25,6 +26,7 @@
         nickname,
         avatar_path,
         status,
+        role,
         last_login_time,
         create_time,
         update_time

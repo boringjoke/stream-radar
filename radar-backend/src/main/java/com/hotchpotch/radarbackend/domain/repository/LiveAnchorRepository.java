@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import com.hotchpotch.radarbackend.domain.entity.LiveAnchor;
 import com.hotchpotch.radarbackend.domain.mapper.LiveAnchorMapper;
+import com.hotchpotch.radarbackend.vo.admin.AdminLiveAnchorVO;
 
 /**
  * 直播主播数据访问仓库。
@@ -81,5 +82,25 @@ public class LiveAnchorRepository {
      */
     public int updateById(LiveAnchor entity) {
         return mapper.updateById(entity);
+    }
+
+    /**
+     * 分页查询当前仍被用户关注的主播。
+     *
+     * @param offset 数据库查询偏移量
+     * @param pageSize 每页记录数
+     * @return 管理中心主播分页记录
+     */
+    public List<AdminLiveAnchorVO> findMonitoredLiveAnchorPage(long offset, int pageSize) {
+        return mapper.selectMonitoredLiveAnchorPage(offset, pageSize);
+    }
+
+    /**
+     * 统计当前仍被用户关注的主播数量。
+     *
+     * @return 当前监控主播数量
+     */
+    public long countMonitoredLiveAnchors() {
+        return mapper.countMonitoredLiveAnchors();
     }
 }
