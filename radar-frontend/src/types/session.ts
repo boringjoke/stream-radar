@@ -1,4 +1,9 @@
 /**
+ * 账号角色。
+ */
+export type UserRole = 'USER' | 'ADMIN'
+
+/**
  * 当前登录会话中的用户摘要。
  */
 export interface SessionUser {
@@ -10,4 +15,6 @@ export interface SessionUser {
   nickname: string
   /** 项目内头像静态资源路径，没有头像时为 null。 */
   avatarPath: string | null
+  /** 账号角色。 */
+  role: UserRole
 }

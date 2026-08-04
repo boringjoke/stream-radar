@@ -13,6 +13,22 @@ export interface ApiEnvelope<T> {
 }
 
 /**
+ * 通用分页响应数据。
+ *
+ * @typeParam T 分页记录类型
+ */
+export interface PageResult<T> {
+  /** 当前页码，从 1 开始。 */
+  pageNum: number
+  /** 每页记录数。 */
+  pageSize: number
+  /** 符合查询条件的总记录数。 */
+  total: number
+  /** 当前页记录列表。 */
+  records: T[]
+}
+
+/**
  * JSON 请求参数。
  */
 export interface JsonRequestOptions extends Omit<RequestInit, 'body' | 'method'> {

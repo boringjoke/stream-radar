@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import { pinia } from '@/stores/pinia'
 import { useSessionStore } from '@/stores/session'
+import { useToastStore } from '@/stores/toast'
+import AdminCenterPage from '@/views/pages/AdminCenterPage.vue'
 import HomePage from '@/views/pages/HomePage.vue'
 import LoginPage from '@/views/pages/LoginPage.vue'
 import RegisterPage from '@/views/pages/RegisterPage.vue'
@@ -15,6 +17,8 @@ declare module 'vue-router' {
     requiresAuth?: boolean
     /** 已登录用户是否应离开当前页面。 */
     guestOnly?: boolean
+    /** 是否只允许管理员访问。 */
+    requiresAdmin?: boolean
   }
 }
 
@@ -46,6 +50,16 @@ const router = createRouter({
       meta: { title: '用户中心 · Stream Radar', requiresAuth: true },
     },
     {
+      path: '/admin',
+      name: 'admin-center',
+      component: AdminCenterPage,
+      meta: {
+        title: '管理中心 · Stream Radar',
+        requiresAuth: true,
+        requiresAdmin: true,
+      },
+    },
+    {
       path: '/:pathMatch(.*)*',
       redirect: '/',
     },
@@ -55,6 +69,18 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   const sessionStore = useSessionStore(pinia)
   await sessionStore.bootstrap()
+
+  if (to.meta.requiresAdmin && !sessionStore.isAuthenticated) {
+    return {
+      name: 'login',
+      query: { redirect: to.fullPath },
+    }
+  }
+
+  if (to.meta.requiresAdmin && sessionStore.user?.role !== 'ADMIN') {
+    useToastStore(pinia).show('权限不足，仅管理员可访问管理中心', 'error')
+    return { name: 'home' }
+  }
 
   if (to.meta.requiresAuth && !sessionStore.isAuthenticated) {
     return {

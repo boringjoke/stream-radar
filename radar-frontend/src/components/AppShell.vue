@@ -14,6 +14,16 @@ const toastStore = useToastStore()
 const { user } = storeToRefs(sessionStore)
 const menuOpen = ref(false)
 const isLoggingOut = ref(false)
+const ADMIN_AVATAR_PATH = '/avatars/avatar-01.svg'
+const isAdmin = computed(() => user.value?.role === 'ADMIN')
+const headerAvatarPath = computed(() => (
+  user.value?.avatarPath || (isAdmin.value ? ADMIN_AVATAR_PATH : null)
+))
+const headerAvatarAlt = computed(() => (
+  isAdmin.value && !user.value?.avatarPath
+    ? '管理员默认头像'
+    : `${user.value?.nickname || '用户'}的头像`
+))
 const shouldHideScrollbar = computed(() => (
   route.name === 'home' || route.name === 'login' || route.name === 'register'
 ))
@@ -67,13 +77,14 @@ async function handleLogout() {
       <div v-if="user" class="header-account">
         <button
           class="header-user"
+          :class="{ 'header-user--admin': isAdmin }"
           type="button"
           aria-haspopup="menu"
           :aria-expanded="menuOpen"
           @click="toggleMenu"
         >
           <span class="header-user__avatar">
-            <img v-if="user.avatarPath" :src="user.avatarPath" :alt="`${user.nickname}的头像`" />
+            <img v-if="headerAvatarPath" :src="headerAvatarPath" :alt="headerAvatarAlt" />
             <span v-else aria-hidden="true">{{ user.nickname.slice(0, 1) }}</span>
           </span>
           <span>{{ user.nickname }}</span>
@@ -83,6 +94,15 @@ async function handleLogout() {
         <div v-if="menuOpen" class="header-menu" role="menu">
           <RouterLink class="header-menu__link" to="/user-center" role="menuitem" @click="closeMenu">
             用户中心
+          </RouterLink>
+          <RouterLink
+            v-if="isAdmin"
+            class="header-menu__link header-menu__admin"
+            to="/admin"
+            role="menuitem"
+            @click="closeMenu"
+          >
+            管理中心
           </RouterLink>
           <button
             class="header-menu__link header-menu__logout"

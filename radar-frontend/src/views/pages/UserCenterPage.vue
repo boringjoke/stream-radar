@@ -64,6 +64,7 @@ function syncSessionUser(nextProfile: UserProfile) {
     username: nextProfile.username,
     nickname: nextProfile.nickname,
     avatarPath: nextProfile.avatarPath,
+    role: user.value?.role ?? 'USER',
   })
 }
 
