@@ -1,5 +1,5 @@
 <script setup lang="ts">
-type StreamStatus = 'live' | 'offline' | 'error'
+type StreamStatus = 'live' | 'offline' | 'unknown' | 'error'
 
 interface Props {
   /** 主播当前状态。 */
@@ -17,6 +17,10 @@ defineProps<Props>()
   <span v-else-if="status === 'error'" class="status-badge status-badge--error">
     <span aria-hidden="true">✦</span>
     <span>ERROR</span>
+  </span>
+  <span v-else-if="status === 'unknown'" class="status-badge status-badge--unknown">
+    <span aria-hidden="true">?</span>
+    <span>UNKNOWN</span>
   </span>
   <span v-else class="status-badge status-badge--offline">OFFLINE</span>
 </template>
