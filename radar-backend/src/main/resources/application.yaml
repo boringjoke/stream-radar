@@ -23,3 +23,9 @@ radar:
     read-timeout-ms: "${HTTP_READ_TIMEOUT_MS:10000}"
     write-timeout-ms: "${HTTP_WRITE_TIMEOUT_MS:10000}"
     max-in-memory-size: "${HTTP_MAX_IN_MEMORY_SIZE:2MB}"
+  url:
+    max-length: "${URL_MAX_LENGTH:2048}"
+    max-redirects: "${URL_MAX_REDIRECTS:3}"
+    connect-timeout-ms: "${URL_CONNECT_TIMEOUT_MS:3000}"
+    response-timeout-ms: "${URL_RESPONSE_TIMEOUT_MS:5000}"
+    user-agent: "${URL_USER_AGENT:StreamRadar/1.0}"

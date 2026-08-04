@@ -155,6 +155,8 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers("/api/admin/**")
                         .hasRole("ADMIN")
+                        .requestMatchers("/api/live/**")
+                        .authenticated()
                         .requestMatchers("/api/user/**")
                         .authenticated()
                         .anyRequest()

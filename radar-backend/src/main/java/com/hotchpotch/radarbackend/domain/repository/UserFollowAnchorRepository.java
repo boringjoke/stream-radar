@@ -1,5 +1,6 @@
 package com.hotchpotch.radarbackend.domain.repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,6 +61,39 @@ public class UserFollowAnchorRepository {
     }
 
     /**
+     * 按主键批量查询关注关系。
+     *
+     * @param ids 关注关系主键集合，为空时直接返回空列表
+     * @return 关注关系列表
+     */
+    public List<UserFollowAnchor> findByIds(Collection<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return mapper.selectByIds(ids);
+    }
+
+    /**
+     * 查询当前用户关注关系数量。
+     *
+     * @param userId 当前用户主键
+     * @return 关注关系数量
+     */
+    public long countByUserId(Long userId) {
+        return mapper.countByUserId(userId);
+    }
+
+    /**
+     * 查询当前用户的主播卡片列表。
+     *
+     * @param userId 当前用户主键
+     * @return 主播卡片列表
+     */
+    public List<com.hotchpotch.radarbackend.vo.live.LiveAnchorCardVO> findLiveAnchorCardsByUserId(Long userId) {
+        return mapper.selectLiveAnchorCardsByUserId(userId);
+    }
+
+    /**
      * 新增关注关系。
      *
      * @param entity 待新增的关注关系实体
@@ -77,5 +111,30 @@ public class UserFollowAnchorRepository {
      */
     public int deleteById(Long id) {
         return mapper.deleteById(id);
+    }
+
+    /**
+     * 按当前用户删除单条关注关系。
+     *
+     * @param userId 当前用户主键
+     * @param followId 关注关系主键
+     * @return 受影响的记录数
+     */
+    public int deleteByUserIdAndId(Long userId, Long followId) {
+        return mapper.deleteByUserIdAndId(userId, followId);
+    }
+
+    /**
+     * 按当前用户批量删除关注关系。
+     *
+     * @param userId 当前用户主键
+     * @param followIds 关注关系主键集合
+     * @return 受影响的记录数
+     */
+    public int deleteByUserIdAndIds(Long userId, Collection<Long> followIds) {
+        if (followIds == null || followIds.isEmpty()) {
+            return 0;
+        }
+        return mapper.deleteByUserIdAndIds(userId, followIds);
     }
 }
