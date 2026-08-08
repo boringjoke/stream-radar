@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import CornerOrnaments from '@/components/CornerOrnaments.vue'
 import GoldDivider from '@/components/GoldDivider.vue'
@@ -23,7 +23,7 @@ export interface StreamerCardData {
   status: StreamStatus
   /** 直播标题或最近一次直播说明。 */
   title: string
-  /** 观看人数；未直播或不可用时为空。 */
+  /** 平台观看人数或人气值；未直播或不可用时为空。 */
   viewers?: string | null
   /** 直播间地址。 */
   url: string
@@ -65,6 +65,54 @@ const platform = computed(() => platformCatalog[props.streamer.platform])
 const isLive = computed(() => props.streamer.status === 'live')
 const isError = computed(() => props.streamer.status === 'error')
 const avatarInitial = computed(() => props.streamer.name.slice(0, 1))
+const metricLabel = computed(() => props.streamer.platform === 'douyu' ? '热度' : '观看中')
+const nameElement = ref<HTMLElement | null>(null)
+
+const NAME_MAX_FONT_SIZE = 15
+const NAME_MIN_FONT_SIZE = 9
+let nameResizeObserver: ResizeObserver | null = null
+
+/** 根据卡片实际宽度缩放主播名称，保持单行显示且避免省略号。 */
+const fitStreamerName = () => {
+  const element = nameElement.value
+  if (!element) {
+    return
+  }
+
+  element.style.fontSize = `${NAME_MAX_FONT_SIZE}px`
+
+  const availableWidth = element.clientWidth
+  const contentWidth = element.scrollWidth
+  if (!availableWidth || !contentWidth || contentWidth <= availableWidth) {
+    return
+  }
+
+  const fittedFontSize = Math.max(
+    NAME_MIN_FONT_SIZE,
+    NAME_MAX_FONT_SIZE * availableWidth / contentWidth,
+  )
+  element.style.fontSize = `${fittedFontSize.toFixed(2)}px`
+}
+
+watch(() => props.streamer.name, () => {
+  void nextTick(fitStreamerName)
+})
+
+onMounted(() => {
+  void nextTick(fitStreamerName)
+
+  if (typeof ResizeObserver !== 'undefined' && nameElement.value) {
+    nameResizeObserver = new ResizeObserver(fitStreamerName)
+    nameResizeObserver.observe(nameElement.value)
+  }
+
+  void document.fonts?.ready.then(fitStreamerName)
+})
+
+onUnmounted(() => {
+  nameResizeObserver?.disconnect()
+  nameResizeObserver = null
+})
 </script>
 
 <template>
@@ -120,9 +168,9 @@ const avatarInitial = computed(() => props.streamer.name.slice(0, 1))
         </div>
 
         <div class="streamer-card__identity">
-          <div class="streamer-card__name">{{ streamer.name }}</div>
+          <div ref="nameElement" class="streamer-card__name">{{ streamer.name }}</div>
           <div class="streamer-card__viewers">
-            <span v-if="isLive && streamer.viewers" class="gold-flicker">✦ {{ streamer.viewers }} 观看中 ✦</span>
+            <span v-if="isLive && streamer.viewers" class="gold-flicker">✦ {{ streamer.viewers }} {{ metricLabel }} ✦</span>
           </div>
         </div>
 

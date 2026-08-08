@@ -717,18 +717,28 @@ p {
 .streamer-card__identity {
   display: flex;
   height: 46px;
+  min-height: 46px;
+  flex: 0 0 46px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  min-width: 0;
   padding: 0 16px 4px;
   text-align: center;
 }
 
 .streamer-card__name {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
   color: var(--color-ivory);
   font-size: 15px;
   font-weight: 600;
   letter-spacing: 0.06em;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-overflow: clip;
 }
 
 .streamer-card:not(.streamer-card--live) .streamer-card__name {
@@ -742,6 +752,7 @@ p {
 .streamer-card__viewers {
   display: flex;
   height: 18px;
+  flex: 0 0 18px;
   align-items: center;
   justify-content: center;
   color: var(--color-gold-dim);
@@ -1209,7 +1220,7 @@ p {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: clamp(28px, 5vw, 52px) var(--page-gutter) 0;
+  padding: clamp(18px, 3vw, 32px) var(--page-gutter) 0;
 }
 
 .user-home__heading-row {
@@ -2029,15 +2040,14 @@ p {
 }
 
 .user-home__card-grid {
-  display: flex;
+  display: grid;
   align-items: start;
-  justify-content: flex-start;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: clamp(10px, 2vw, 18px);
-  flex-wrap: wrap;
 }
 
 .user-home__card-column {
-  width: clamp(150px, 20vw, 210px);
+  width: auto;
   min-width: 0;
 }
 
@@ -2087,6 +2097,12 @@ p {
 .user-home__state-action {
   padding-right: 22px;
   padding-left: 22px;
+}
+
+@media (max-width: 1100px) {
+  .user-home__card-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 .modal-backdrop {

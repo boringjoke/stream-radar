@@ -32,7 +32,7 @@ export interface AdminLiveAnchor {
   coverUrl: string | null
   /** 当前或最后一次有效直播标题。 */
   liveTitle: string | null
-  /** 当前观看人数。 */
+  /** 当前观看人数或平台人气值。 */
   onlineCount: number | null
   /** 直播状态。 */
   liveStatus: string

@@ -57,7 +57,16 @@ const filteredAnchors = computed(() => anchors.value.filter((anchor) => {
   return platformMatched && statusMatched
 }))
 
-const filteredCards = computed(() => filteredAnchors.value.map(toStreamerCard))
+const filteredCards = computed(() => filteredAnchors.value
+  .map((anchor, index) => ({
+    card: toStreamerCard(anchor),
+    index,
+  }))
+  .sort((left, right) => {
+    const liveRank = Number(right.card.status === 'live') - Number(left.card.status === 'live')
+    return liveRank || left.index - right.index
+  })
+  .map(({ card }) => card))
 const selectedCount = computed(() => selectedFollowIds.value.size)
 const allVisibleSelected = computed(() => (
   filteredCards.value.length > 0
@@ -98,12 +107,12 @@ function toCardStatus(statusValue: LiveAnchorCard['liveStatus']): StreamerCardDa
 }
 
 /**
- * 格式化观看人数，只有直播中状态的卡片会展示该字段。
+ * 格式化平台观看人数或热度，只有直播中状态的卡片会展示该字段。
  *
- * @param count 观看人数
- * @returns 展示用观看人数
+ * @param count 平台返回的观看人数或热度
+ * @returns 展示用平台指标
  */
-function formatViewers(count: number | null): string | null {
+function formatPlatformMetric(count: number | null): string | null {
   if (count === null || count < 0) {
     return null
   }
@@ -133,7 +142,7 @@ function toStreamerCard(anchor: LiveAnchorCard): StreamerCardData {
     status: statusValue,
     title: anchor.liveTitle?.trim()
       || (statusValue === 'unknown' ? '等待平台数据源返回主播资料' : '—'),
-    viewers: formatViewers(anchor.onlineCount),
+    viewers: formatPlatformMetric(anchor.onlineCount),
     url: anchor.roomUrl,
   }
 }

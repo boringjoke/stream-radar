@@ -32,7 +32,7 @@ export interface LiveAnchorCard {
   coverUrl: string | null
   /** 当前或最后一次有效直播标题，当前阶段可能为空。 */
   liveTitle: string | null
-  /** 当前观看人数，当前阶段可能为空。 */
+  /** 当前观看人数或平台人气值，当前阶段可能为空。 */
   onlineCount: number | null
   /** 统一直播状态。 */
   liveStatus: LiveStatus
