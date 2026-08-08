@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 
+import { getApiUrl } from '@/api/request'
 import {
   followLiveRoom,
   getLiveHome,
@@ -8,7 +9,7 @@ import {
   unfollowLiveAnchors,
 } from '@/api/live'
 import { ApiRequestError } from '@/api/request'
-import type { LiveAnchorCard, LiveFollowRequest } from '@/types/live'
+import type { LiveAnchorCard, LiveFollowRequest, LiveHome } from '@/types/live'
 
 type LiveHomeStatus = 'idle' | 'loading' | 'ready' | 'error'
 
@@ -22,6 +23,8 @@ export const useLiveStore = defineStore('live', () => {
   const status = ref<LiveHomeStatus>('idle')
   const errorMessage = ref('')
   const isSubmitting = ref(false)
+  const eventsStatus = ref<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected')
+  let eventSource: EventSource | null = null
 
   const isLoading = computed(() => status.value === 'loading')
   const isReady = computed(() => status.value === 'ready')
@@ -64,6 +67,98 @@ export const useLiveStore = defineStore('live', () => {
       errorMessage.value = getErrorMessage(error)
       throw error
     }
+  }
+
+  /**
+   * 应用 SSE 初始首页快照。
+   *
+   * @param home 当前用户首页快照
+   */
+  function applySnapshot(home: LiveHome): void {
+    anchors.value = home.anchors
+    totalCount.value = home.totalCount
+    liveCount.value = home.liveCount
+    status.value = 'ready'
+  }
+
+  /**
+   * 应用单个主播变化事件；未知关注关系不主动追加，避免取关后的迟到事件复活卡片。
+   *
+   * @param anchor 变化后的主播卡片
+   */
+  function applyAnchorUpdate(anchor: LiveAnchorCard): void {
+    const index = anchors.value.findIndex((item) => item.followId === anchor.followId)
+    if (index < 0) {
+      return
+    }
+    const nextAnchors = [...anchors.value]
+    nextAnchors[index] = anchor
+    anchors.value = nextAnchors
+    refreshSummary()
+  }
+
+  /**
+   * 解析 SSE JSON 数据。
+   *
+   * @param event SSE 消息
+   * @returns 解析后的数据，格式不正确时返回 null
+   */
+  function parseEventData<T>(event: Event): T | null {
+    const data = (event as MessageEvent<string>).data
+    if (typeof data !== 'string' || !data) {
+      return null
+    }
+    try {
+      return JSON.parse(data) as T
+    } catch {
+      return null
+    }
+  }
+
+  /**
+   * 建立当前用户直播变化 SSE 连接。
+   *
+   * 连接仅使用 HttpOnly Session Cookie 认证，不把登录凭证写入浏览器存储。
+   */
+  function connectEvents(): void {
+    disconnectEvents()
+    if (typeof EventSource === 'undefined') {
+      return
+    }
+
+    eventsStatus.value = 'connecting'
+    const source = new EventSource(getApiUrl('/live/events'), { withCredentials: true })
+    source.addEventListener('snapshot', (event) => {
+      const home = parseEventData<LiveHome>(event)
+      if (home) {
+        applySnapshot(home)
+      }
+    })
+    source.addEventListener('streamer.updated', (event) => {
+      const anchor = parseEventData<LiveAnchorCard>(event)
+      if (anchor) {
+        applyAnchorUpdate(anchor)
+      }
+    })
+    source.onopen = () => {
+      eventsStatus.value = 'connected'
+    }
+    source.onerror = () => {
+      // EventSource 会依据服务端 retry 值自动重连，状态只用于调试和页面生命周期管理。
+      eventsStatus.value = 'error'
+    }
+    eventSource = source
+  }
+
+  /**
+   * 关闭当前用户直播变化 SSE 连接。
+   */
+  function disconnectEvents(): void {
+    if (eventSource) {
+      eventSource.close()
+      eventSource = null
+    }
+    eventsStatus.value = 'disconnected'
   }
 
   /**
@@ -138,21 +233,25 @@ export const useLiveStore = defineStore('live', () => {
     status.value = 'idle'
     errorMessage.value = ''
     isSubmitting.value = false
+    disconnectEvents()
   }
 
   return {
     anchors,
     clear,
+    connectEvents,
     errorMessage,
     follow,
     getErrorMessage,
     isLoading,
     isReady,
     isSubmitting,
+    eventsStatus,
     liveCount,
     loadHome,
     status,
     totalCount,
+    disconnectEvents,
     unfollow,
     unfollowBatch,
   }

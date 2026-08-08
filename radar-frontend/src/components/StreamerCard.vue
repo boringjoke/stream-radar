@@ -111,6 +111,7 @@ const avatarInitial = computed(() => props.streamer.name.slice(0, 1))
                 :alt="streamer.name"
                 width="76"
                 height="76"
+                referrerpolicy="no-referrer"
                 @error="imageFailed = true"
               />
               <span v-else class="streamer-card__avatar-fallback" aria-hidden="true">{{ avatarInitial }}</span>

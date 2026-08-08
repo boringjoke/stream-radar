@@ -118,6 +118,16 @@ function joinUrl(path: string): string {
   return `${base}${suffix}`
 }
 
+/**
+ * 获取带当前 API 基址的流式接口地址。
+ *
+ * @param path API 相对路径
+ * @returns 可供 EventSource 使用的地址
+ */
+export function getApiUrl(path: string): string {
+  return joinUrl(path)
+}
+
 function parseResponse<T>(responseText: string): ApiEnvelope<T> | null {
   if (!responseText) {
     return null

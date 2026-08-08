@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -174,6 +174,7 @@ async function redirectWhenUnauthorized(error: unknown): Promise<boolean> {
 async function loadHome() {
   try {
     await liveStore.loadHome()
+    liveStore.connectEvents()
   } catch (error) {
     if (!(await redirectWhenUnauthorized(error))) {
       toastStore.show(errorMessage.value || getErrorMessage(error), 'error')
@@ -324,6 +325,7 @@ watch([platformFilter, statusFilter], () => {
 })
 
 onMounted(loadHome)
+onUnmounted(liveStore.disconnectEvents)
 </script>
 
 <template>
