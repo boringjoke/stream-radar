@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.time.LocalDateTime;
 
 import com.hotchpotch.radarbackend.common.exception.BusinessException;
 import com.hotchpotch.radarbackend.common.exception.ErrorCode;
@@ -23,6 +24,7 @@ import com.hotchpotch.radarbackend.service.live.url.ResolvedLiveRoom;
 import com.hotchpotch.radarbackend.service.live.validation.LiveRoomAvailabilityChecker;
 import com.hotchpotch.radarbackend.service.live.validation.LiveRoomCheckResult;
 import com.hotchpotch.radarbackend.service.live.validation.LiveRoomCheckStatus;
+import com.hotchpotch.radarbackend.service.live.source.LiveSnapshot;
 import com.hotchpotch.radarbackend.vo.live.LiveAnchorCardVO;
 import com.hotchpotch.radarbackend.vo.live.LiveHomeVO;
 import org.springframework.dao.DuplicateKeyException;
@@ -57,7 +59,7 @@ public class LiveService {
     private final UserFollowAnchorRepository userFollowAnchorRepository;
 
     /**
-     * 可选的直播间真实存在性校验器。
+     * 直播间真实存在性校验器。
      */
     private final List<LiveRoomAvailabilityChecker> availabilityCheckers;
 
@@ -113,11 +115,21 @@ public class LiveService {
         }
 
         ResolvedLiveRoom room = liveRoomUrlResolver.resolve(request.getRoomUrl());
-        validateRoomAvailability(room);
+        LiveRoomCheckResult availabilityResult = validateRoomAvailability(room);
+        LiveSnapshot snapshot = availabilityResult == null ? null : availabilityResult.getSnapshot();
+        String resolvedRoomId = snapshot == null || isBlank(snapshot.getRoomId())
+                ? room.getRoomId()
+                : snapshot.getRoomId();
 
         LiveAnchor anchor = liveAnchorRepository
-                .findByPlatformAndRoomId(room.getPlatform().getCode(), room.getRoomId())
+                .findByPlatformAndRoomId(room.getPlatform().getCode(), resolvedRoomId)
                 .orElse(null);
+        if (anchor == null && !resolvedRoomId.equals(room.getRoomId())) {
+            // 兼容此前按短房间号保存的旧记录，并在成功同步时归一化为长房间号。
+            anchor = liveAnchorRepository
+                    .findByPlatformAndRoomId(room.getPlatform().getCode(), room.getRoomId())
+                    .orElse(null);
+        }
         if (anchor != null && userFollowAnchorRepository
                 .findByUserIdAndAnchorId(userId, anchor.getId()).isPresent()) {
             throw new BusinessException(ErrorCode.BUSINESS_ERROR, "已经关注该主播，无需重复添加");
@@ -125,7 +137,10 @@ public class LiveService {
 
         ensureFollowLimit(userId);
         if (anchor == null) {
-            anchor = createOrReuseAnchor(room);
+            anchor = createOrReuseAnchor(room, snapshot);
+        } else if (snapshot != null) {
+            applySnapshot(anchor, room, snapshot);
+            liveAnchorRepository.updateById(anchor);
         }
 
         UserFollowAnchor relation = new UserFollowAnchor();
@@ -196,18 +211,18 @@ public class LiveService {
     }
 
     /**
-     * 校验可选的数据源结果。当前没有数据源 Bean 时只保留 UNKNOWN，后续正式数据源
-     * 返回 NOT_FOUND 或无法确认时，统一在保存关注关系前拒绝。
+     * 校验数据源结果。尚未接入的平台没有对应校验器时保留原有 UNKNOWN 兼容行为；
+     * 已接入平台返回 NOT_FOUND 或无法确认时，统一在保存关注关系前拒绝。
      *
      * @param room URL 解析结果
      */
-    private void validateRoomAvailability(ResolvedLiveRoom room) {
+    private LiveRoomCheckResult validateRoomAvailability(ResolvedLiveRoom room) {
         LiveRoomAvailabilityChecker checker = availabilityCheckers.stream()
                 .filter(item -> item.supports(room))
                 .findFirst()
                 .orElse(null);
         if (checker == null) {
-            return;
+            return null;
         }
 
         LiveRoomCheckResult result = checker.check(room);
@@ -220,6 +235,10 @@ public class LiveService {
         if (result.getStatus() != LiveRoomCheckStatus.AVAILABLE) {
             throw new BusinessException(ErrorCode.BUSINESS_ERROR, "暂时无法确认直播间是否存在，请稍后重试");
         }
+        if (result.getSnapshot() == null) {
+            throw new BusinessException(ErrorCode.BUSINESS_ERROR, "暂时无法确认直播间资料，请稍后重试");
+        }
+        return result;
     }
 
     /**
@@ -239,24 +258,112 @@ public class LiveService {
      * @param room URL 解析结果
      * @return 主播实体
      */
-    private LiveAnchor createOrReuseAnchor(ResolvedLiveRoom room) {
+    private LiveAnchor createOrReuseAnchor(ResolvedLiveRoom room, LiveSnapshot snapshot) {
         LiveAnchor anchor = new LiveAnchor();
         anchor.setPlatform(room.getPlatform().getCode());
-        anchor.setRoomId(room.getRoomId());
-        anchor.setRoomUrl(room.getRoomUrl());
-        anchor.setLiveStatus(LiveStatus.UNKNOWN.getCode());
+        anchor.setRoomId(resolveRoomId(room, snapshot));
+        anchor.setRoomUrl(resolveRoomUrl(room, snapshot));
+        if (snapshot == null) {
+            anchor.setLiveStatus(LiveStatus.UNKNOWN.getCode());
+        } else {
+            applySnapshot(anchor, room, snapshot);
+        }
         anchor.setFailureCount(0);
         try {
             liveAnchorRepository.insert(anchor);
             return anchor;
         } catch (DuplicateKeyException exception) {
-            return liveAnchorRepository
-                    .findByPlatformAndRoomId(room.getPlatform().getCode(), room.getRoomId())
+            LiveAnchor existingAnchor = liveAnchorRepository
+                    .findByPlatformAndRoomId(room.getPlatform().getCode(), anchor.getRoomId())
+                    .or(() -> liveAnchorRepository.findByPlatformAndRoomId(
+                            room.getPlatform().getCode(), room.getRoomId()))
                     .orElseThrow(() -> new BusinessException(
                             ErrorCode.BUSINESS_ERROR,
                             "直播间正在被其他请求处理，请稍后重试",
                             exception));
+            if (snapshot != null) {
+                applySnapshot(existingAnchor, room, snapshot);
+                liveAnchorRepository.updateById(existingAnchor);
+            }
+            return existingAnchor;
         }
+    }
+
+    /**
+     * 将数据源快照同步到主播实体。
+     *
+     * @param anchor 主播实体
+     * @param room URL 解析结果
+     * @param snapshot 数据源快照
+     */
+    private void applySnapshot(LiveAnchor anchor, ResolvedLiveRoom room, LiveSnapshot snapshot) {
+        String previousStatus = anchor.getLiveStatus();
+        String resolvedRoomId = resolveRoomId(room, snapshot);
+        anchor.setPlatform(room.getPlatform().getCode());
+        anchor.setRoomId(resolvedRoomId);
+        anchor.setRoomUrl(resolveRoomUrl(room, snapshot));
+        if (!isBlank(snapshot.getPlatformUid())) {
+            anchor.setPlatformUid(snapshot.getPlatformUid());
+        }
+        if (!isBlank(snapshot.getAnchorName())) {
+            anchor.setAnchorName(snapshot.getAnchorName());
+        }
+        if (!isBlank(snapshot.getAvatarUrl())) {
+            anchor.setAvatarUrl(snapshot.getAvatarUrl());
+        }
+        if (!isBlank(snapshot.getCoverUrl())) {
+            anchor.setCoverUrl(snapshot.getCoverUrl());
+        }
+        if (!isBlank(snapshot.getLiveTitle())) {
+            anchor.setLiveTitle(snapshot.getLiveTitle());
+        }
+        if (snapshot.getOnlineCount() != null) {
+            anchor.setOnlineCount(snapshot.getOnlineCount());
+        }
+        String nextStatus = snapshot.getLiveStatus().getCode();
+        anchor.setLiveStatus(nextStatus);
+        anchor.setFailureCount(0);
+        anchor.setErrorMessage(null);
+        LocalDateTime now = LocalDateTime.now();
+        anchor.setLastCheckTime(now);
+        anchor.setLastSuccessTime(now);
+        if (!Objects.equals(previousStatus, nextStatus)) {
+            anchor.setStatusChangeTime(now);
+        }
+    }
+
+    /**
+     * 获取数据源返回的规范房间标识。
+     *
+     * @param room URL 解析结果
+     * @param snapshot 数据源快照
+     * @return 规范房间标识
+     */
+    private String resolveRoomId(ResolvedLiveRoom room, LiveSnapshot snapshot) {
+        return snapshot == null || isBlank(snapshot.getRoomId())
+                ? room.getRoomId()
+                : snapshot.getRoomId();
+    }
+
+    /**
+     * 获取规范直播间地址。
+     *
+     * @param room URL 解析结果
+     * @param snapshot 数据源快照
+     * @return 规范直播间地址
+     */
+    private String resolveRoomUrl(ResolvedLiveRoom room, LiveSnapshot snapshot) {
+        return room.getPlatform().getCanonicalUrlPrefix() + "/" + resolveRoomId(room, snapshot);
+    }
+
+    /**
+     * 判断字符串是否为空。
+     *
+     * @param value 待判断文本
+     * @return 是否为空
+     */
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 
     /**

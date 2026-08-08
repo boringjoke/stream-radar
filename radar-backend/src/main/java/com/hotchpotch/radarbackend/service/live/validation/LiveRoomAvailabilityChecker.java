@@ -5,8 +5,8 @@ import com.hotchpotch.radarbackend.service.live.url.ResolvedLiveRoom;
 /**
  * 直播间真实存在性校验扩展点。
  *
- * <p>当前阶段不注册平台实现，因此关注流程只执行 URL 安全解析。后续接入正式数据源
- * 后，由平台校验实现返回 {@link LiveRoomCheckStatus#NOT_FOUND}，关注关系将在保存前被拒绝。</p>
+ * <p>统一数据源路由器按平台委托已注册的适配器；尚未接入数据源的平台继续保留
+ * URL 安全解析后的 UNKNOWN 兼容行为。</p>
  */
 public interface LiveRoomAvailabilityChecker {
 

@@ -27,6 +27,14 @@ public interface UserFollowAnchorMapper extends BaseMapper<UserFollowAnchor> {
             @Param("anchorId") Long anchorId);
 
     /**
+     * 按主播主键查询关注关系。
+     *
+     * @param anchorId 主播主键
+     * @return 关注关系列表
+     */
+    List<UserFollowAnchor> selectByAnchorId(@Param("anchorId") Long anchorId);
+
+    /**
      * 查询用户的全部关注关系。
      *
      * @param userId 用户主键

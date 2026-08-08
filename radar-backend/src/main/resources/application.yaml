@@ -17,6 +17,11 @@ radar:
     fixed-delay-ms: "${MONITOR_FIXED_DELAY_MS:60000}"
     initial-delay-ms: "${MONITOR_INITIAL_DELAY_MS:10000}"
     follow-limit: "${FOLLOW_LIMIT:100}"
+    health-persist-interval-ms: "${MONITOR_HEALTH_PERSIST_INTERVAL_MS:300000}"
+    max-error-message-length: "${MONITOR_MAX_ERROR_MESSAGE_LENGTH:500}"
+  sse:
+    emitter-timeout-ms: "${SSE_EMITTER_TIMEOUT_MS:0}"
+    heartbeat-delay-ms: "${SSE_HEARTBEAT_DELAY_MS:20000}"
   http:
     connect-timeout-ms: "${HTTP_CONNECT_TIMEOUT_MS:5000}"
     response-timeout-ms: "${HTTP_RESPONSE_TIMEOUT_MS:10000}"
@@ -29,3 +34,12 @@ radar:
     connect-timeout-ms: "${URL_CONNECT_TIMEOUT_MS:3000}"
     response-timeout-ms: "${URL_RESPONSE_TIMEOUT_MS:5000}"
     user-agent: "${URL_USER_AGENT:StreamRadar/1.0}"
+  bilibili:
+    api-base-url: "${BILIBILI_API_BASE_URL:https://api.live.bilibili.com}"
+    web-base-url: "${BILIBILI_WEB_BASE_URL:https://live.bilibili.com}"
+    connect-timeout-ms: "${BILIBILI_CONNECT_TIMEOUT_MS:5000}"
+    response-timeout-ms: "${BILIBILI_RESPONSE_TIMEOUT_MS:10000}"
+    read-timeout-ms: "${BILIBILI_READ_TIMEOUT_MS:10000}"
+    write-timeout-ms: "${BILIBILI_WRITE_TIMEOUT_MS:10000}"
+    user-agent: "${BILIBILI_USER_AGENT:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 StreamRadar/1.0}"
+    max-in-memory-size-bytes: "${BILIBILI_MAX_IN_MEMORY_SIZE_BYTES:2097152}"

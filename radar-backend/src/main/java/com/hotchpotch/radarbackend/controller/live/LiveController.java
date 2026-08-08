@@ -5,15 +5,18 @@ import com.hotchpotch.radarbackend.request.live.LiveFollowRequest;
 import com.hotchpotch.radarbackend.request.live.LiveUnfollowBatchRequest;
 import com.hotchpotch.radarbackend.request.live.LiveUnfollowRequest;
 import com.hotchpotch.radarbackend.service.live.LiveService;
+import com.hotchpotch.radarbackend.service.live.sse.LiveSseService;
 import com.hotchpotch.radarbackend.vo.live.LiveAnchorCardVO;
 import com.hotchpotch.radarbackend.vo.live.LiveHomeVO;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 /**
  * 直播首页和关注管理接口。
@@ -28,12 +31,18 @@ public class LiveController {
     private final LiveService liveService;
 
     /**
+     * 直播 SSE 服务。
+     */
+    private final LiveSseService liveSseService;
+
+    /**
      * 创建直播接口控制器。
      *
      * @param liveService 直播业务服务
      */
-    public LiveController(LiveService liveService) {
+    public LiveController(LiveService liveService, LiveSseService liveSseService) {
         this.liveService = liveService;
+        this.liveSseService = liveSseService;
     }
 
     /**
@@ -45,6 +54,17 @@ public class LiveController {
     @GetMapping("/home")
     public ApiResponse<LiveHomeVO> home(Authentication authentication) {
         return ApiResponse.success(liveService.getHome(authentication));
+    }
+
+    /**
+     * 建立当前用户的直播状态 SSE 长连接。
+     *
+     * @param authentication 当前认证对象
+     * @return SSE 发射器
+     */
+    @GetMapping(value = "/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter events(Authentication authentication) {
+        return liveSseService.connect(authentication);
     }
 
     /**

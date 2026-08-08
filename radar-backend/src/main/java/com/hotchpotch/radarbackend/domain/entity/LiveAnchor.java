@@ -2,6 +2,7 @@ package com.hotchpotch.radarbackend.domain.entity;
 
 import java.time.LocalDateTime;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -90,7 +91,7 @@ public class LiveAnchor {
     /**
      * 最近一次采集错误摘要。
      */
-    @TableField("error_message")
+    @TableField(value = "error_message", updateStrategy = FieldStrategy.ALWAYS)
     private String errorMessage;
 
     /**

@@ -103,4 +103,13 @@ public class LiveAnchorRepository {
     public long countMonitoredLiveAnchors() {
         return mapper.countMonitoredLiveAnchors();
     }
+
+    /**
+     * 查询当前仍被有效用户关注的去重主播。
+     *
+     * @return 去重后的监控主播列表
+     */
+    public List<LiveAnchor> findMonitoredLiveAnchors() {
+        return mapper.selectMonitoredLiveAnchors();
+    }
 }

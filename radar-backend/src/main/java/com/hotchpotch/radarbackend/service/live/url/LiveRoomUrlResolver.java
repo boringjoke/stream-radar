@@ -17,6 +17,7 @@ import com.hotchpotch.radarbackend.common.exception.ErrorCode;
 import com.hotchpotch.radarbackend.config.RadarUrlProperties;
 import com.hotchpotch.radarbackend.domain.enums.LivePlatform;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -78,7 +79,9 @@ public class LiveRoomUrlResolver {
      * @param properties URL 解析配置
      * @param webClient 短链接 HTTP 客户端
      */
-    public LiveRoomUrlResolver(RadarUrlProperties properties, WebClient webClient) {
+    public LiveRoomUrlResolver(
+            RadarUrlProperties properties,
+            @Qualifier("liveUrlWebClient") WebClient webClient) {
         this.properties = properties;
         this.webClient = webClient;
     }

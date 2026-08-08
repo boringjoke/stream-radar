@@ -24,7 +24,7 @@ public class LiveUrlWebClientConfig {
      * @param properties URL 解析配置
      * @return URL 解析专用 WebClient
      */
-    @Bean
+    @Bean(name = "liveUrlWebClient")
     public WebClient liveUrlWebClient(RadarUrlProperties properties) {
         HttpClient httpClient = HttpClient.create()
                 .followRedirect(false)

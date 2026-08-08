@@ -37,6 +37,14 @@
         ORDER BY create_time DESC, id DESC
     </select>
 
+    <select id="selectByAnchorId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="BaseColumns"/>
+        FROM user_follow_anchor
+        WHERE anchor_id = #{anchorId}
+        ORDER BY id ASC
+    </select>
+
     <resultMap id="LiveAnchorCardResultMap" type="com.hotchpotch.radarbackend.vo.live.LiveAnchorCardVO">
         <id column="follow_id" property="followId"/>
         <result column="anchor_id" property="anchorId"/>

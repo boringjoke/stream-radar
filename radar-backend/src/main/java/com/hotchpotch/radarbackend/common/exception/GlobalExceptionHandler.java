@@ -16,6 +16,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -142,6 +143,20 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<?>> handleMethodArgumentTypeMismatchException(
             MethodArgumentTypeMismatchException exception) {
         return buildResponse(ErrorCode.PARAMETER_ERROR, "请求参数类型错误", null);
+    }
+
+    /**
+     * 处理异步请求客户端主动断开。
+     *
+     * <p>SSE 客户端刷新页面、关闭页面或网络断开时，Servlet 容器可能在服务端写心跳期间
+     * 抛出该异常。此时响应已经不可写，不能再套用统一 JSON 响应，否则会产生二次的
+     * {@code HttpMessageNotWritableException}。</p>
+     *
+     * @param exception 异步请求不可用异常
+     */
+    @ExceptionHandler(AsyncRequestNotUsableException.class)
+    public void handleAsyncRequestNotUsableException(AsyncRequestNotUsableException exception) {
+        log.debug("SSE 客户端已断开，结束当前异步请求");
     }
 
     /**

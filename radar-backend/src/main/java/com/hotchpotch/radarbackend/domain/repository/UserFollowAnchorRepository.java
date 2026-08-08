@@ -51,6 +51,19 @@ public class UserFollowAnchorRepository {
     }
 
     /**
+     * 查询主播当前的全部关注关系。
+     *
+     * @param anchorId 主播主键
+     * @return 关注关系列表
+     */
+    public List<UserFollowAnchor> findByAnchorId(Long anchorId) {
+        if (anchorId == null) {
+            return List.of();
+        }
+        return mapper.selectByAnchorId(anchorId);
+    }
+
+    /**
      * 查询用户的全部关注关系。
      *
      * @param userId 用户主键

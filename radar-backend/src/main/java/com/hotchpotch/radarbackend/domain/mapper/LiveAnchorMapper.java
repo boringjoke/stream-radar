@@ -42,4 +42,11 @@ public interface LiveAnchorMapper extends BaseMapper<LiveAnchor> {
      * @return 当前监控主播数量
      */
     long countMonitoredLiveAnchors();
+
+    /**
+     * 查询当前仍被有效用户关注的去重主播，供监控任务使用。
+     *
+     * @return 去重后的监控主播列表
+     */
+    List<LiveAnchor> selectMonitoredLiveAnchors();
 }
