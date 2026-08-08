@@ -43,3 +43,12 @@ radar:
     write-timeout-ms: "${BILIBILI_WRITE_TIMEOUT_MS:10000}"
     user-agent: "${BILIBILI_USER_AGENT:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 StreamRadar/1.0}"
     max-in-memory-size-bytes: "${BILIBILI_MAX_IN_MEMORY_SIZE_BYTES:2097152}"
+  douyu:
+    api-base-url: "${DOUYU_API_BASE_URL:https://www.douyu.com}"
+    web-base-url: "${DOUYU_WEB_BASE_URL:https://www.douyu.com}"
+    connect-timeout-ms: "${DOUYU_CONNECT_TIMEOUT_MS:5000}"
+    response-timeout-ms: "${DOUYU_RESPONSE_TIMEOUT_MS:10000}"
+    read-timeout-ms: "${DOUYU_READ_TIMEOUT_MS:10000}"
+    write-timeout-ms: "${DOUYU_WRITE_TIMEOUT_MS:10000}"
+    user-agent: "${DOUYU_USER_AGENT:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 StreamRadar/1.0}"
+    max-in-memory-size-bytes: "${DOUYU_MAX_IN_MEMORY_SIZE_BYTES:4194304}"

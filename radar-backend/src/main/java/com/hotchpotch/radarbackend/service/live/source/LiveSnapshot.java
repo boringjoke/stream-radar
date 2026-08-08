@@ -65,7 +65,7 @@ public final class LiveSnapshot {
      * @param avatarUrl 主播头像地址
      * @param coverUrl 直播封面地址
      * @param liveTitle 直播标题
-     * @param onlineCount 观看人数
+     * @param onlineCount 观看人数或平台人气值
      * @param liveStatus 统一直播状态
      */
     public LiveSnapshot(

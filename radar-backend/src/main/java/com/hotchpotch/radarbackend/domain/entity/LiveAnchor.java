@@ -71,7 +71,7 @@ public class LiveAnchor {
     private String liveTitle;
 
     /**
-     * 当前观看人数。
+     * 当前观看人数或平台人气值。
      */
     @TableField("online_count")
     private Long onlineCount;

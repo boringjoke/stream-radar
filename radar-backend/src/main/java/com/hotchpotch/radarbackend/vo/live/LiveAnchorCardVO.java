@@ -61,7 +61,7 @@ public class LiveAnchorCardVO {
     private String liveTitle;
 
     /**
-     * 当前观看人数，当前阶段可能为空。
+     * 当前观看人数或平台人气值，当前阶段可能为空。
      */
     private Long onlineCount;
 
