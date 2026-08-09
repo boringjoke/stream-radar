@@ -65,7 +65,11 @@ const platform = computed(() => platformCatalog[props.streamer.platform])
 const isLive = computed(() => props.streamer.status === 'live')
 const isError = computed(() => props.streamer.status === 'error')
 const avatarInitial = computed(() => props.streamer.name.slice(0, 1))
-const metricLabel = computed(() => props.streamer.platform === 'douyu' ? '热度' : '观看中')
+const metricLabel = computed(() => (
+  props.streamer.platform === 'douyu' || props.streamer.platform === 'huya'
+    ? '热度'
+    : '观看中'
+))
 const nameElement = ref<HTMLElement | null>(null)
 
 const NAME_MAX_FONT_SIZE = 15
