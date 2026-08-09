@@ -52,3 +52,11 @@ radar:
     write-timeout-ms: "${DOUYU_WRITE_TIMEOUT_MS:10000}"
     user-agent: "${DOUYU_USER_AGENT:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 StreamRadar/1.0}"
     max-in-memory-size-bytes: "${DOUYU_MAX_IN_MEMORY_SIZE_BYTES:4194304}"
+  huya:
+    web-base-url: "${HUYA_WEB_BASE_URL:https://www.huya.com}"
+    connect-timeout-ms: "${HUYA_CONNECT_TIMEOUT_MS:5000}"
+    response-timeout-ms: "${HUYA_RESPONSE_TIMEOUT_MS:10000}"
+    read-timeout-ms: "${HUYA_READ_TIMEOUT_MS:10000}"
+    write-timeout-ms: "${HUYA_WRITE_TIMEOUT_MS:10000}"
+    user-agent: "${HUYA_USER_AGENT:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 StreamRadar/1.0}"
+    max-in-memory-size-bytes: "${HUYA_MAX_IN_MEMORY_SIZE_BYTES:4194304}"
