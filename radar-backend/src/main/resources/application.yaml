@@ -60,3 +60,12 @@ radar:
     write-timeout-ms: "${HUYA_WRITE_TIMEOUT_MS:10000}"
     user-agent: "${HUYA_USER_AGENT:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 StreamRadar/1.0}"
     max-in-memory-size-bytes: "${HUYA_MAX_IN_MEMORY_SIZE_BYTES:4194304}"
+  douyin:
+    api-base-url: "${DOUYIN_API_BASE_URL:https://live.douyin.com}"
+    web-base-url: "${DOUYIN_WEB_BASE_URL:https://live.douyin.com}"
+    connect-timeout-ms: "${DOUYIN_CONNECT_TIMEOUT_MS:5000}"
+    response-timeout-ms: "${DOUYIN_RESPONSE_TIMEOUT_MS:10000}"
+    read-timeout-ms: "${DOUYIN_READ_TIMEOUT_MS:10000}"
+    write-timeout-ms: "${DOUYIN_WRITE_TIMEOUT_MS:10000}"
+    user-agent: "${DOUYIN_USER_AGENT:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 StreamRadar/1.0}"
+    max-in-memory-size-bytes: "${DOUYIN_MAX_IN_MEMORY_SIZE_BYTES:4194304}"
