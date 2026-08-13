@@ -5,18 +5,18 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 /**
- * 用户首页主播卡片响应对象。
+ * 直播首页主播卡片响应对象。
  */
 @Data
 public class LiveAnchorCardVO {
 
     /**
-     * 当前用户的关注关系主键。
+     * 当前用户的关注关系主键；游客首页实时快照为空。
      */
     private Long followId;
 
     /**
-     * 主播主键。
+     * 主播主键；游客首页实时快照为空。
      */
     private Long anchorId;
 

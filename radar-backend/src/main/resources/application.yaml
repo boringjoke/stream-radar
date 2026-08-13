@@ -69,3 +69,9 @@ radar:
     write-timeout-ms: "${DOUYIN_WRITE_TIMEOUT_MS:10000}"
     user-agent: "${DOUYIN_USER_AGENT:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 StreamRadar/1.0}"
     max-in-memory-size-bytes: "${DOUYIN_MAX_IN_MEMORY_SIZE_BYTES:4194304}"
+  live:
+    guest-demo:
+      bilibili-url: "${GUEST_DEMO_BILIBILI_URL:https://live.bilibili.com/22637261}"
+      douyu-url: "${GUEST_DEMO_DOUYU_URL:https://www.douyu.com/9999}"
+      huya-url: "${GUEST_DEMO_HUYA_URL:https://www.huya.com/998}"
+      douyin-url: "${GUEST_DEMO_DOUYIN_URL:https://live.douyin.com/690434662}"

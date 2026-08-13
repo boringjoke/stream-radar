@@ -3,12 +3,12 @@ package com.hotchpotch.radarbackend.vo.live;
 import java.util.List;
 
 /**
- * 当前用户直播首页响应对象。
+ * 直播首页响应对象，可用于登录用户关注首页和游客真实演示首页。
  */
 public class LiveHomeVO {
 
     /**
-     * 当前用户关注主播总数。
+     * 当前首页主播总数。
      */
     private final long totalCount;
 
@@ -18,7 +18,7 @@ public class LiveHomeVO {
     private final long liveCount;
 
     /**
-     * 当前用户关注主播卡片列表。
+     * 当前首页主播卡片列表。
      */
     private final List<LiveAnchorCardVO> anchors;
 

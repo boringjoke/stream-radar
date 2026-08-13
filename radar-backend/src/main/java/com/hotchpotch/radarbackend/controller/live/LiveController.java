@@ -4,6 +4,8 @@ import com.hotchpotch.radarbackend.common.response.ApiResponse;
 import com.hotchpotch.radarbackend.request.live.LiveFollowRequest;
 import com.hotchpotch.radarbackend.request.live.LiveUnfollowBatchRequest;
 import com.hotchpotch.radarbackend.request.live.LiveUnfollowRequest;
+import com.hotchpotch.radarbackend.service.live.guest.GuestLiveHomeService;
+import com.hotchpotch.radarbackend.service.live.guest.GuestLiveSseService;
 import com.hotchpotch.radarbackend.service.live.LiveService;
 import com.hotchpotch.radarbackend.service.live.sse.LiveSseService;
 import com.hotchpotch.radarbackend.vo.live.LiveAnchorCardVO;
@@ -36,13 +38,29 @@ public class LiveController {
     private final LiveSseService liveSseService;
 
     /**
+     * 游客首页真实数据服务。
+     */
+    private final GuestLiveHomeService guestLiveHomeService;
+
+    /**
+     * 游客首页真实数据 SSE 服务。
+     */
+    private final GuestLiveSseService guestLiveSseService;
+
+    /**
      * 创建直播接口控制器。
      *
      * @param liveService 直播业务服务
      */
-    public LiveController(LiveService liveService, LiveSseService liveSseService) {
+    public LiveController(
+            LiveService liveService,
+            LiveSseService liveSseService,
+            GuestLiveHomeService guestLiveHomeService,
+            GuestLiveSseService guestLiveSseService) {
         this.liveService = liveService;
         this.liveSseService = liveSseService;
+        this.guestLiveHomeService = guestLiveHomeService;
+        this.guestLiveSseService = guestLiveSseService;
     }
 
     /**
@@ -57,6 +75,16 @@ public class LiveController {
     }
 
     /**
+     * 查询游客首页四个平台真实演示主播数据。
+     *
+     * @return 游客首页真实主播数据
+     */
+    @GetMapping("/guestHome")
+    public ApiResponse<LiveHomeVO> guestHome() {
+        return ApiResponse.success(guestLiveHomeService.getHome());
+    }
+
+    /**
      * 建立当前用户的直播状态 SSE 长连接。
      *
      * @param authentication 当前认证对象
@@ -65,6 +93,16 @@ public class LiveController {
     @GetMapping(value = "/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter events(Authentication authentication) {
         return liveSseService.connect(authentication);
+    }
+
+    /**
+     * 建立游客首页真实演示主播 SSE 长连接。
+     *
+     * @return 游客首页 SSE 发射器
+     */
+    @GetMapping(value = "/guestEvents", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter guestEvents() {
+        return guestLiveSseService.connect();
     }
 
     /**
