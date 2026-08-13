@@ -3,6 +3,7 @@ import type {
   LiveAnchorCard,
   LiveFollowRequest,
   LiveHome,
+  GuestLiveHome,
   LiveUnfollowBatchRequest,
   LiveUnfollowRequest,
 } from '@/types/live'
@@ -12,6 +13,13 @@ import type {
  */
 export function getLiveHome(): Promise<LiveHome> {
   return get<LiveHome>('/live/home')
+}
+
+/**
+ * 查询游客首页四个平台真实演示主播数据。
+ */
+export function getGuestLiveHome(): Promise<GuestLiveHome> {
+  return get<GuestLiveHome>('/live/guestHome')
 }
 
 /**

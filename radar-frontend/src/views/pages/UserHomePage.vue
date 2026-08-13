@@ -341,12 +341,11 @@ onUnmounted(liveStore.disconnectEvents)
   <main class="user-home">
     <div class="user-home__inner">
       <div class="user-home__heading-row animate-fade-in-up">
-        <div>
+        <div class="user-home__heading-copy">
           <div class="user-home__kicker">MY STREAMERS</div>
+          <div class="user-home__title-line">
           <h1 id="user-home-title">关注主播</h1>
-        </div>
-
-        <div class="user-home__summary" aria-label="关注统计">
+          <div class="user-home__summary" aria-label="关注统计">
           <div v-if="liveCount > 0" class="user-home__live-count">
             <i aria-hidden="true"></i>
             <strong>{{ liveCount }}</strong>
@@ -357,29 +356,8 @@ onUnmounted(liveStore.disconnectEvents)
             <span>位关注</span>
           </div>
         </div>
-      </div>
-
-      <div class="user-home__toolbar">
-        <div class="user-home__toolbar-actions">
-          <template v-if="!batchMode">
-            <button class="user-home__tool" type="button" :disabled="!isReady || totalCount === 0" @click="toggleBatchMode">
-              批量取关
-            </button>
-            <button class="user-home__tool user-home__tool--primary" type="button" @click="openAddModal">
-              + 添加主播
-            </button>
-          </template>
-          <template v-else>
-            <span class="user-home__selected-count">已选 {{ selectedCount }} 位</span>
-            <button class="user-home__tool" type="button" :disabled="filteredCards.length === 0" @click="toggleSelectAll">
-              {{ allVisibleSelected ? '取消全选' : '全选当前' }}
-            </button>
-            <button class="user-home__tool user-home__tool--danger" type="button" :disabled="selectedCount === 0 || isSubmitting" @click="requestBatchUnfollow">
-              取关选中 ({{ selectedCount }})
-            </button>
-            <button class="user-home__tool" type="button" @click="exitBatchMode">退出</button>
-          </template>
         </div>
+      </div>
       </div>
 
       <div class="user-home__filters" aria-label="主播筛选">
@@ -416,6 +394,28 @@ onUnmounted(liveStore.disconnectEvents)
                   : anchor.liveStatus === 'OFFLINE').length }}
             </small>
           </button>
+        <div class="user-home__toolbar">
+          <div class="user-home__toolbar-actions">
+            <template v-if="!batchMode">
+              <button class="user-home__tool" type="button" :disabled="!isReady || totalCount === 0" @click="toggleBatchMode">
+                批量取关
+              </button>
+              <button class="user-home__tool user-home__tool--primary" type="button" @click="openAddModal">
+                + 添加主播
+              </button>
+            </template>
+            <template v-else>
+              <span class="user-home__selected-count">已选 {{ selectedCount }} 位</span>
+              <button class="user-home__tool" type="button" :disabled="filteredCards.length === 0" @click="toggleSelectAll">
+                {{ allVisibleSelected ? '取消全选' : '全选当前' }}
+              </button>
+              <button class="user-home__tool user-home__tool--danger" type="button" :disabled="selectedCount === 0 || isSubmitting" @click="requestBatchUnfollow">
+                取关选中 ({{ selectedCount }})
+              </button>
+              <button class="user-home__tool" type="button" @click="exitBatchMode">退出</button>
+            </template>
+          </div>
+        </div>
         </div>
       </div>
 

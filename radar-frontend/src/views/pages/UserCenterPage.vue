@@ -7,15 +7,18 @@ import { ApiRequestError } from '@/api/request'
 import { getAvatarOptions, getProfile, updateProfile } from '@/api/user'
 import CornerOrnaments from '@/components/CornerOrnaments.vue'
 import SectionHeader from '@/components/SectionHeader.vue'
+import { useLiveStore } from '@/stores/live'
 import { useSessionStore } from '@/stores/session'
 import { useToastStore } from '@/stores/toast'
 import type { AvatarOption, UserProfile } from '@/types/user'
 
 const route = useRoute()
 const router = useRouter()
+const liveStore = useLiveStore()
 const sessionStore = useSessionStore()
 const toastStore = useToastStore()
 const { user } = storeToRefs(sessionStore)
+const { totalCount, liveCount } = storeToRefs(liveStore)
 
 const profile = ref<UserProfile | null>(null)
 const avatarOptions = ref<AvatarOption[]>([])
@@ -190,19 +193,19 @@ onMounted(loadProfile)
             <template v-else-if="profile">
               <h1 id="profile-title">{{ profile.nickname }}</h1>
               <p class="profile-card__email">{{ profile.email || `@${profile.username}` }}</p>
-              <div class="profile-card__stats">
+              <div class="profile-card__stats" aria-label="关注统计">
                 <div>
-                  <strong>—</strong>
+                  <strong>{{ totalCount }}</strong>
                   <span>关注主播 <b aria-hidden="true">→</b></span>
                 </div>
                 <div>
-                  <strong class="profile-card__stats-live">—</strong>
+                  <strong class="profile-card__stats-live">{{ liveCount }}</strong>
                   <span>正在直播 <b aria-hidden="true">→</b></span>
                 </div>
               </div>
 
-              <button class="profile-card__action profile-card__action--edit" type="button" @click="toggleEditing">
-                {{ isEditing ? '取消编辑' : '编辑资料' }}
+              <button v-if="!isEditing" class="profile-card__action profile-card__action--edit" type="button" @click="toggleEditing">
+                编辑资料
               </button>
 
               <form v-if="isEditing" class="user-profile-form" @submit.prevent="saveProfile">
@@ -245,9 +248,14 @@ onMounted(loadProfile)
                   </div>
                 </fieldset>
 
-                <button class="profile-card__save" type="submit" :disabled="isSaving">
-                  {{ isSaving ? '保存中…' : '保存资料' }}
-                </button>
+                <div class="profile-card__form-actions">
+                  <button class="profile-card__action profile-card__action--cancel" type="button" @click="toggleEditing">
+                    取消编辑
+                  </button>
+                  <button class="profile-card__save" type="submit" :disabled="isSaving">
+                    {{ isSaving ? '保存中…' : '保存资料' }}
+                  </button>
+                </div>
               </form>
 
             </template>

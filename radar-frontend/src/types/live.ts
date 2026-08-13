@@ -53,6 +53,28 @@ export interface LiveHome {
 }
 
 /**
+ * 游客首页真实演示主播卡片。
+ */
+export interface GuestLiveAnchorCard extends Omit<LiveAnchorCard, 'followId' | 'anchorId'> {
+  /** 游客首页不绑定用户关注关系。 */
+  followId: null
+  /** 游客首页不暴露数据库主播主键。 */
+  anchorId: null
+}
+
+/**
+ * 游客首页真实演示主播数据。
+ */
+export interface GuestLiveHome {
+  /** 游客首页演示主播总数。 */
+  totalCount: number
+  /** 当前状态为直播中的演示主播数量。 */
+  liveCount: number
+  /** 四个平台真实演示主播卡片列表。 */
+  anchors: GuestLiveAnchorCard[]
+}
+
+/**
  * 关注直播间请求。
  */
 export interface LiveFollowRequest {

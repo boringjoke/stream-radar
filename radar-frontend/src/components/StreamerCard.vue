@@ -3,7 +3,6 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import CornerOrnaments from '@/components/CornerOrnaments.vue'
 import GoldDivider from '@/components/GoldDivider.vue'
-import PlatformWatermark from '@/components/PlatformWatermark.vue'
 import StatusBadge from '@/components/StatusBadge.vue'
 import { platformCatalog } from '@/types/platform'
 
@@ -132,6 +131,7 @@ onUnmounted(() => {
         class="streamer-card"
         :class="{
         'streamer-card--live': isLive,
+        'streamer-card--offline': streamer.status === 'offline',
         'streamer-card--error': isError,
         'streamer-card--selected': selected,
         'streamer-card--hovered': hovered,
@@ -140,12 +140,10 @@ onUnmounted(() => {
         <div v-if="isLive" class="streamer-card__live-strip" :style="{ backgroundColor: platform.color }"></div>
 
         <CornerOrnaments :color="isLive ? (hovered ? 'var(--color-gold)' : 'var(--color-gold-border)') : 'rgba(200,169,110,0.18)'" :size="12" />
-        <PlatformWatermark :platform="streamer.platform" :style="{ color: 'var(--color-gold)' }" />
 
         <div class="streamer-card__topline">
           <span class="platform-seal">
-            <i :style="{ backgroundColor: platform.color }" aria-hidden="true"></i>
-            <span>{{ platform.roman }}</span>
+            <img class="platform-seal__icon" :src="platform.iconPath" :alt="`${platform.label}平台`" />
           </span>
           <div class="streamer-card__topline-right">
             <StatusBadge :status="streamer.status" />

@@ -1,59 +1,149 @@
 <script setup lang="ts">
+import { computed, onMounted, onUnmounted, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 
 import GoldDivider from '@/components/GoldDivider.vue'
 import SectionHeader from '@/components/SectionHeader.vue'
 import StreamerCard, { type StreamerCardData } from '@/components/StreamerCard.vue'
 import UserHomePage from '@/views/pages/UserHomePage.vue'
+import { useGuestLiveStore } from '@/stores/guestLive'
 import { useSessionStore } from '@/stores/session'
 import { platformCatalog } from '@/types/platform'
+import type { GuestLiveAnchorCard } from '@/types/live'
 
 const sessionStore = useSessionStore()
 const { isAuthenticated } = storeToRefs(sessionStore)
+const guestLiveStore = useGuestLiveStore()
+const {
+  anchors: guestAnchors,
+  errorMessage: guestErrorMessage,
+  eventsStatus: guestEventsStatus,
+  isLoading: guestIsLoading,
+  status: guestStatus,
+} = storeToRefs(guestLiveStore)
 
 /**
- * Figma Make 的游客首页展示数据。
+ * 将游客首页后端状态转换为主播卡片状态。
  *
- * 这些数据只负责让页面在业务接口接入前保持完整视觉，不进入 API 或 Session 数据链路。
+ * @param statusValue 后端统一状态
+ * @returns 前端卡片状态
  */
-const demoStreamers: StreamerCardData[] = [
-  {
-    id: 'demo-bilibili',
-    name: '老番茄',
-    platform: 'bilibili',
-    status: 'live',
-    title: '【周末闲聊】聊聊那些年我们追过的动漫',
-    viewers: '12.4万',
-    url: 'https://live.bilibili.com/22637261',
-  },
-  {
-    id: 'demo-douyu',
-    name: '冯提莫',
-    platform: 'douyu',
-    status: 'live',
-    title: '今晚翻唱经典歌曲合集，等你来听！',
-    viewers: '8.6万',
-    url: 'https://www.douyu.com/9999',
-  },
-  {
-    id: 'demo-huya',
-    name: 'Miss',
-    platform: 'huya',
-    status: 'offline',
-    title: '上次直播：S14全球总决赛 EDG vs T1',
-    viewers: null,
-    url: 'https://www.huya.com/998',
-  },
-  {
-    id: 'demo-douyin',
-    name: '李子柒',
-    platform: 'douyin',
-    status: 'offline',
-    title: '上次直播：古法酿酒，从选粮到封坛',
-    viewers: null,
-    url: 'https://live.douyin.com/369324308707',
-  },
-]
+function toCardStatus(statusValue: GuestLiveAnchorCard['liveStatus']): StreamerCardData['status'] {
+  if (statusValue === 'LIVE') {
+    return 'live'
+  }
+  if (statusValue === 'OFFLINE') {
+    return 'offline'
+  }
+  if (statusValue === 'ERROR') {
+    return 'error'
+  }
+  return 'unknown'
+}
+
+/**
+ * 格式化平台观看人数或热度。
+ *
+ * @param count 平台返回的观看人数或热度
+ * @returns 展示用平台指标
+ */
+function formatPlatformMetric(count: number | null): string | null {
+  if (count === null || count < 0) {
+    return null
+  }
+  if (count >= 10000) {
+    return `${(count / 10000).toFixed(count >= 100000 ? 0 : 1)}万`
+  }
+  if (count >= 1000) {
+    return `${(count / 1000).toFixed(1)}千`
+  }
+  return String(count)
+}
+
+/**
+ * 将游客首页真实主播转换为现有视觉卡片数据。
+ *
+ * @param anchor 游客首页真实主播
+ * @returns 视觉卡片数据
+ */
+function toStreamerCard(anchor: GuestLiveAnchorCard): StreamerCardData {
+  const platform = {
+    BILIBILI: 'bilibili',
+    DOUYU: 'douyu',
+    HUYA: 'huya',
+    DOUYIN: 'douyin',
+  }[anchor.platform] as StreamerCardData['platform']
+  const status = toCardStatus(anchor.liveStatus)
+  return {
+    id: `${anchor.platform}-${anchor.roomId}`,
+    name: anchor.anchorName?.trim() || `房间 ${anchor.roomId}`,
+    platform,
+    avatarPath: anchor.avatarUrl,
+    status,
+    title: anchor.liveTitle?.trim()
+      || (status === 'unknown' ? '等待平台数据源返回主播资料' : '—'),
+    viewers: formatPlatformMetric(anchor.onlineCount),
+    url: anchor.roomUrl,
+  }
+}
+
+const demoStreamers = computed(() => guestAnchors.value.map(toStreamerCard))
+
+let guestPageStarted = false
+
+/**
+ * 启动游客首页真实数据和 SSE。
+ */
+async function startGuestLive() {
+  if (guestPageStarted) {
+    return
+  }
+  guestPageStarted = true
+  try {
+    await guestLiveStore.loadHome()
+  } catch {
+    // 初始请求失败时仍建立 SSE，等待服务端首个完整快照恢复页面。
+  }
+  if (!guestPageStarted || isAuthenticated.value) {
+    return
+  }
+  guestLiveStore.connectEvents()
+}
+
+/**
+ * 重试游客首页真实数据。
+ */
+async function retryGuestLive() {
+  guestPageStarted = false
+  await startGuestLive()
+}
+
+/**
+ * 停止游客首页真实数据连接。
+ */
+function stopGuestLive() {
+  if (!guestPageStarted) {
+    return
+  }
+  guestPageStarted = false
+  guestLiveStore.clear()
+}
+
+watch(isAuthenticated, (authenticated) => {
+  if (authenticated) {
+    stopGuestLive()
+  } else {
+    void startGuestLive()
+  }
+}, { immediate: true })
+
+onMounted(() => {
+  if (!isAuthenticated.value) {
+    void startGuestLive()
+  }
+})
+
+onUnmounted(stopGuestLive)
 </script>
 
 <template>
@@ -68,7 +158,7 @@ const demoStreamers: StreamerCardData[] = [
 
         <div class="guest-hero__kicker">Cross-Platform Stream Monitor</div>
 
-        <h1 id="guest-home-title">一站掌握全平台直播</h1>
+        <h1 id="guest-home-title">你的专属直播雷达</h1>
 
         <p class="guest-hero__description">关注 B站、斗鱼、虎牙、抖音的主播，开播立刻知道</p>
 
@@ -88,11 +178,27 @@ const demoStreamers: StreamerCardData[] = [
         <span id="demo-section-title">平台示例</span>
       </SectionHeader>
 
-      <div class="demo-card-grid">
+      <div v-if="guestStatus === 'idle' || guestIsLoading" class="guest-home__data-state">
+        <div class="guest-home__data-state-mark" aria-hidden="true">◌</div>
+        <p>正在获取四个平台真实主播数据…</p>
+      </div>
+
+      <div v-else-if="guestStatus === 'error' && demoStreamers.length === 0" class="guest-home__data-state guest-home__data-state--error">
+        <div class="guest-home__data-state-mark" aria-hidden="true">!</div>
+        <h2>真实主播数据暂时无法加载</h2>
+        <p>{{ guestErrorMessage || '请稍后重试' }}</p>
+        <button class="guest-home__data-state-action figma-button" type="button" @click="retryGuestLive">重新加载</button>
+      </div>
+
+      <div v-else class="demo-card-grid">
         <div v-for="(streamer, index) in demoStreamers" :key="streamer.id" class="demo-card-column">
           <StreamerCard :streamer="streamer" :delay="index * 0.08" />
         </div>
       </div>
+
+      <p v-if="guestEventsStatus === 'error' && demoStreamers.length > 0" class="guest-home__sync-hint">
+        实时状态连接暂时中断，正在自动重连…
+      </p>
     </section>
   </main>
 </template>
