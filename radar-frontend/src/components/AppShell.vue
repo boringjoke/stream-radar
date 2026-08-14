@@ -184,6 +184,9 @@ async function handleLogout() {
             </span>
           </div>
 
+          <RouterLink class="header-menu__link" to="/" role="menuitem" @click="closeMenu">
+            返回首页
+          </RouterLink>
           <RouterLink class="header-menu__link" to="/user-center" role="menuitem" @click="closeMenu">
             个人中心
           </RouterLink>

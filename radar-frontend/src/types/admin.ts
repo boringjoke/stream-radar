@@ -1,4 +1,5 @@
 import type { PageResult } from './api'
+import type { LivePlatformCode } from './live'
 
 /**
  * 管理员主播分页查询请求。
@@ -8,6 +9,30 @@ export interface AdminLiveAnchorPageRequest {
   pageNum?: number
   /** 每页记录数，取值范围为 1～100。 */
   pageSize?: number
+  /** 平台精确筛选条件。 */
+  platform?: LivePlatformCode | ''
+  /** 主播名称模糊筛选条件。 */
+  anchorName?: string
+  /** 房间号精确筛选条件。 */
+  roomId?: string
+  /** 关注人数区间最小值，包含边界。 */
+  minFollowerCount?: number | null
+  /** 关注人数区间最大值，包含边界。 */
+  maxFollowerCount?: number | null
+}
+
+/**
+ * 管理中心全平台及平台拆分统计。
+ */
+export interface AdminOverview {
+  /** 启用普通用户数量，不包含管理员。 */
+  userCount: number
+  /** 纳入统计范围的主播数量。 */
+  anchorCount: number
+  /** 被启用普通用户关注的去重主播数量。 */
+  followedAnchorCount: number
+  /** 四个平台分别纳入统计的主播数量。 */
+  platformAnchorCounts: Record<LivePlatformCode, number>
 }
 
 /**
@@ -17,27 +42,15 @@ export interface AdminLiveAnchor {
   /** 主播主键。 */
   anchorId: number
   /** 平台标识。 */
-  platform: string
+  platform: LivePlatformCode
   /** 平台直播间标识。 */
   roomId: string
-  /** 平台主播用户标识。 */
-  platformUid: string | null
   /** 规范化直播间地址。 */
   roomUrl: string
   /** 主播名称。 */
   anchorName: string | null
   /** 主播头像地址。 */
   avatarUrl: string | null
-  /** 直播封面地址。 */
-  coverUrl: string | null
-  /** 当前或最后一次有效直播标题。 */
-  liveTitle: string | null
-  /** 当前观看人数或平台人气值。 */
-  onlineCount: number | null
-  /** 直播状态。 */
-  liveStatus: string
-  /** 最后检测时间。 */
-  lastCheckTime: string | null
   /** 当前主播的去重关注用户数。 */
   followerCount: number
 }

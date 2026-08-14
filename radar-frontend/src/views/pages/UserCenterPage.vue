@@ -196,11 +196,11 @@ onMounted(loadProfile)
               <div class="profile-card__stats" aria-label="关注统计">
                 <div>
                   <strong>{{ totalCount }}</strong>
-                  <span>关注主播 <b aria-hidden="true">→</b></span>
+                  <span>关注主播</span>
                 </div>
                 <div>
                   <strong class="profile-card__stats-live">{{ liveCount }}</strong>
-                  <span>正在直播 <b aria-hidden="true">→</b></span>
+                  <span>正在直播</span>
                 </div>
               </div>
 
