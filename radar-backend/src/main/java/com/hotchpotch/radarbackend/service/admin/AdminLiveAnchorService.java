@@ -1,10 +1,12 @@
 package com.hotchpotch.radarbackend.service.admin;
 
 import java.util.List;
+import java.util.Locale;
 
 import com.hotchpotch.radarbackend.common.exception.BusinessException;
 import com.hotchpotch.radarbackend.common.exception.ErrorCode;
 import com.hotchpotch.radarbackend.domain.repository.LiveAnchorRepository;
+import com.hotchpotch.radarbackend.domain.enums.LivePlatform;
 import com.hotchpotch.radarbackend.request.admin.AdminLiveAnchorPageRequest;
 import com.hotchpotch.radarbackend.vo.admin.AdminLiveAnchorVO;
 import com.hotchpotch.radarbackend.vo.common.PageVO;
@@ -46,7 +48,7 @@ public class AdminLiveAnchorService {
     }
 
     /**
-     * 分页查询当前仍被用户关注的主播及关注人数。
+     * 分页查询全部主播及当前启用普通用户的关注人数。
      *
      * @param request 分页查询请求
      * @return 管理中心主播分页结果
@@ -54,12 +56,83 @@ public class AdminLiveAnchorService {
     public PageVO<AdminLiveAnchorVO> page(AdminLiveAnchorPageRequest request) {
         int pageNum = normalizePageNum(request == null ? null : request.getPageNum());
         int pageSize = normalizePageSize(request == null ? null : request.getPageSize());
-        long total = liveAnchorRepository.countMonitoredLiveAnchors();
+        String platform = normalizePlatform(request == null ? null : request.getPlatform());
+        String anchorName = normalizeLikeKeyword(request == null ? null : request.getAnchorName());
+        String roomId = normalizeExactKeyword(request == null ? null : request.getRoomId());
+        Long minFollowerCount = request == null ? null : request.getMinFollowerCount();
+        Long maxFollowerCount = request == null ? null : request.getMaxFollowerCount();
+        validateFollowerRange(minFollowerCount, maxFollowerCount);
+
+        long total = liveAnchorRepository.countAdminLiveAnchors(
+                platform,
+                anchorName,
+                roomId,
+                minFollowerCount,
+                maxFollowerCount);
         long offset = calculateOffset(pageNum, pageSize);
         List<AdminLiveAnchorVO> records = offset >= total
                 ? List.of()
-                : liveAnchorRepository.findMonitoredLiveAnchorPage(offset, pageSize);
+                : liveAnchorRepository.findAdminLiveAnchorPage(
+                        offset,
+                        pageSize,
+                        platform,
+                        anchorName,
+                        roomId,
+                        minFollowerCount,
+                        maxFollowerCount);
         return new PageVO<>(pageNum, pageSize, total, records);
+    }
+
+    /**
+     * 规范化平台筛选条件。
+     *
+     * @param platform 原始平台筛选条件
+     * @return 数据库存储的平台编码
+     */
+    private String normalizePlatform(String platform) {
+        if (platform == null || platform.isBlank()) {
+            return null;
+        }
+        String normalizedPlatform = platform.trim().toUpperCase(Locale.ROOT);
+        return LivePlatform.fromCode(normalizedPlatform)
+                .map(LivePlatform::getCode)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PARAMETER_ERROR, "平台筛选值无效"));
+    }
+
+    /**
+     * 规范化模糊查询文本。
+     *
+     * @param value 原始文本
+     * @return 去除首尾空白后的文本，空文本返回 null
+     */
+    private String normalizeLikeKeyword(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return value.trim();
+    }
+
+    /**
+     * 规范化精确查询文本。
+     *
+     * @param value 原始文本
+     * @return 去除首尾空白后的文本，空文本返回 null
+     */
+    private String normalizeExactKeyword(String value) {
+        return normalizeLikeKeyword(value);
+    }
+
+    /**
+     * 校验关注人数区间。
+     *
+     * @param minFollowerCount 最小关注人数
+     * @param maxFollowerCount 最大关注人数
+     */
+    private void validateFollowerRange(Long minFollowerCount, Long maxFollowerCount) {
+        if (minFollowerCount != null && maxFollowerCount != null
+                && minFollowerCount > maxFollowerCount) {
+            throw new BusinessException(ErrorCode.PARAMETER_ERROR, "关注人数最小值不能大于最大值");
+        }
     }
 
     /**

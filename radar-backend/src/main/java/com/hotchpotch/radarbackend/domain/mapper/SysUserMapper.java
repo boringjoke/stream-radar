@@ -26,4 +26,11 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * @return 用户实体，不存在时返回 null
      */
     SysUser selectByEmail(@Param("email") String email);
+
+    /**
+     * 统计启用普通用户数量。
+     *
+     * @return 启用普通用户数量
+     */
+    long countEnabledNormalUsers();
 }

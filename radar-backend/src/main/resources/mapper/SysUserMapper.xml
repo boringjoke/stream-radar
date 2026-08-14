@@ -48,4 +48,11 @@
         LIMIT 1
     </select>
 
+    <select id="countEnabledNormalUsers" resultType="long">
+        SELECT COUNT(*)
+        FROM sys_user
+        WHERE status = 1
+          AND role = 'USER'
+    </select>
+
 </mapper>

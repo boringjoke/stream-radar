@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 管理中心主播接口。
+     * 管理中心主播接口。
  */
 @RestController
 @RequestMapping("/api/admin/liveAnchor")
@@ -33,7 +33,7 @@ public class AdminLiveAnchorController {
     }
 
     /**
-     * 分页查询当前仍被用户关注的主播及关注人数。
+     * 分页查询全部主播及当前启用普通用户的关注人数。
      *
      * @param request 分页查询请求
      * @return 管理中心主播分页结果

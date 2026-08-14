@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import com.hotchpotch.radarbackend.domain.entity.LiveAnchor;
 import com.hotchpotch.radarbackend.domain.mapper.LiveAnchorMapper;
+import com.hotchpotch.radarbackend.vo.admin.AdminAnchorStatisticRow;
 import com.hotchpotch.radarbackend.vo.admin.AdminLiveAnchorVO;
 
 /**
@@ -85,23 +86,56 @@ public class LiveAnchorRepository {
     }
 
     /**
-     * 分页查询当前仍被用户关注的主播。
+     * 分页查询全部主播及当前启用普通用户的关注人数。
      *
      * @param offset 数据库查询偏移量
      * @param pageSize 每页记录数
      * @return 管理中心主播分页记录
      */
-    public List<AdminLiveAnchorVO> findMonitoredLiveAnchorPage(long offset, int pageSize) {
-        return mapper.selectMonitoredLiveAnchorPage(offset, pageSize);
+    public List<AdminLiveAnchorVO> findAdminLiveAnchorPage(
+            long offset,
+            int pageSize,
+            String platform,
+            String anchorName,
+            String roomId,
+            Long minFollowerCount,
+            Long maxFollowerCount) {
+        return mapper.selectAdminLiveAnchorPage(
+                offset,
+                pageSize,
+                platform,
+                anchorName,
+                roomId,
+                minFollowerCount,
+                maxFollowerCount);
     }
 
     /**
-     * 统计当前仍被用户关注的主播数量。
+     * 统计符合筛选条件的全部主播数量。
      *
-     * @return 当前监控主播数量
+     * @return 符合筛选条件的主播数量
      */
-    public long countMonitoredLiveAnchors() {
-        return mapper.countMonitoredLiveAnchors();
+    public long countAdminLiveAnchors(
+            String platform,
+            String anchorName,
+            String roomId,
+            Long minFollowerCount,
+            Long maxFollowerCount) {
+        return mapper.countAdminLiveAnchors(
+                platform,
+                anchorName,
+                roomId,
+                minFollowerCount,
+                maxFollowerCount);
+    }
+
+    /**
+     * 查询主播统计中间记录。
+     *
+     * @return 全部主播及其启用普通用户关注人数
+     */
+    public List<AdminAnchorStatisticRow> findAdminAnchorStatisticRows() {
+        return mapper.selectAdminAnchorStatisticRows();
     }
 
     /**

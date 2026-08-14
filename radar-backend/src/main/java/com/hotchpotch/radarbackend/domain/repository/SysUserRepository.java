@@ -58,6 +58,15 @@ public class SysUserRepository {
     }
 
     /**
+     * 统计启用普通用户数量。
+     *
+     * @return 启用普通用户数量
+     */
+    public long countEnabledNormalUsers() {
+        return mapper.countEnabledNormalUsers();
+    }
+
+    /**
      * 新增用户。
      *
      * @param entity 待新增的用户实体
