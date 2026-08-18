@@ -284,7 +284,7 @@ onMounted(() => {
       <header class="admin-center-heading">
         <div>
           <span class="admin-center-heading__kicker">ADMIN CONSOLE · READ ONLY</span>
-          <h1 id="admin-center-title">平台观测总览</h1>
+          <h1 id="admin-center-title">平台总览</h1>
           <p>查看用户、主播与关注关系的当前快照，目录包含所有已登记主播。</p>
         </div>
         <span class="admin-center-heading__status"><i aria-hidden="true"></i>只读视图</span>

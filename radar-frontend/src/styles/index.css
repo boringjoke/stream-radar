@@ -99,7 +99,8 @@ p {
   --color-ivory-dim: #d4c29f;
   --color-ivory-faint: #b7a27e;
   min-height: 100vh;
-  overflow-x: hidden;
+  /* 使用 clip 裁剪横向溢出但不创建额外滚动容器，保证页面吸顶元素相对视口生效。 */
+  overflow-x: clip;
   background:
     repeating-linear-gradient(45deg, rgba(200, 169, 110, 0.025) 0, rgba(200, 169, 110, 0.025) 1px, transparent 0, transparent 50%),
     repeating-linear-gradient(-45deg, rgba(200, 169, 110, 0.025) 0, rgba(200, 169, 110, 0.025) 1px, transparent 0, transparent 50%),
@@ -1924,18 +1925,18 @@ p {
 .admin-stat-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
   margin-top: 18px;
 }
 
 .admin-stat-card {
   position: relative;
   display: flex;
-  min-height: 142px;
+  min-height: 124px;
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
-  padding: 18px 20px 17px;
+  padding: 15px 17px 14px;
   border: 1px solid var(--admin-border);
   border-top: 2px solid rgba(240, 212, 136, 0.62);
   background: linear-gradient(145deg, var(--admin-surface-raised), var(--admin-surface) 62%);
@@ -1968,7 +1969,7 @@ p {
   z-index: 1;
   color: var(--color-ivory);
   font-family: var(--font-utility);
-  font-size: clamp(34px, 5vw, 54px);
+  font-size: clamp(30px, 4.5vw, 46px);
   font-weight: 400;
   letter-spacing: 0.04em;
   line-height: 1;
@@ -1988,15 +1989,15 @@ p {
 .admin-platform-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 12px;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .admin-platform-stat {
   position: relative;
-  min-height: 122px;
+  min-height: 104px;
   overflow: hidden;
-  padding: 15px 17px;
+  padding: 12px 14px;
   border: 1px solid color-mix(in srgb, var(--platform-color) 34%, transparent);
   background: linear-gradient(145deg, color-mix(in srgb, var(--platform-color) 14%, var(--admin-surface)), var(--admin-surface) 72%);
   box-shadow: inset 0 0 0 1px rgba(255, 245, 220, 0.035);
@@ -2020,8 +2021,8 @@ p {
 .admin-platform-stat__icon,
 .admin-platform-chip img {
   display: inline-flex;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   align-items: center;
   justify-content: center;
   overflow: hidden;
@@ -2031,23 +2032,23 @@ p {
 }
 
 .admin-platform-stat__icon img {
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
 }
 
 .admin-platform-stat strong {
   display: block;
-  margin-top: 12px;
+  margin-top: 9px;
   color: var(--color-ivory);
   font-family: var(--font-utility);
-  font-size: 29px;
+  font-size: 25px;
   font-weight: 400;
   line-height: 1;
 }
 
 .admin-platform-stat > span:last-child {
   display: block;
-  margin-top: 7px;
+  margin-top: 5px;
   color: var(--admin-muted);
   font-size: 12px;
   overflow: hidden;
@@ -2056,6 +2057,9 @@ p {
 }
 
 .admin-filter-bar {
+  position: sticky;
+  z-index: 15;
+  top: 56px;
   display: grid;
   grid-template-columns: minmax(112px, 0.82fr) minmax(150px, 1.3fr) minmax(130px, 1fr) minmax(118px, 0.9fr) minmax(118px, 0.9fr) auto;
   gap: 10px;
@@ -2064,7 +2068,8 @@ p {
   padding: 16px;
   border: 1px solid var(--admin-border);
   background: var(--admin-surface);
-  box-shadow: inset 0 0 0 1px rgba(255, 245, 220, 0.025);
+  box-shadow: inset 0 0 0 1px rgba(255, 245, 220, 0.025), 0 12px 18px rgba(11, 9, 7, 0.34);
+  backdrop-filter: blur(12px);
 }
 
 .admin-filter-field {
